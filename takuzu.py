@@ -34,15 +34,15 @@ class TakuzuState:
 
 def list_creation(number):
     lst = [[]] * number
-    for i in range(n):
+    for i in range(number):
         lst[i] = [] * number
     return lst
 
 
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
-    positions = [[]]
-    max = 0
+    def __init__(self, positions):
+        self.structure = positions
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -65,20 +65,18 @@ class Board:
     def parse_instance_from_stdin():
         """Lê o test do standard input (stdin) que é passado como argumento
         e retorna uma instância da classe Board.
-
         Por exemplo:
             $ python3 takuzu.py < input_T01
-
             > from sys import stdin
             > stdin.readline()
         """
-        self.max = int(sys.stdin.readline())
-        temp = list_creation(self.max)
-        for i in range(self.max):
+        max = int(sys.stdin.readline())
+        temp = list_creation(max)
+        for i in range(max):
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        self.positions = temp
+        return Board(temp)
 
 
     # TODO: outros metodos da classe
@@ -121,6 +119,8 @@ class Takuzu(Problem):
 
 if __name__ == "__main__":
     # TODO:
+    b1 = Board.parse_instance_from_stdin()
+    print(b1)
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
