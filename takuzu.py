@@ -7,6 +7,7 @@
 # 00000 Nome2
 
 import sys
+
 from search import (
     Problem,
     Node,
@@ -16,7 +17,6 @@ from search import (
     greedy_search,
     recursive_best_first_search,
 )
-
 
 class TakuzuState:
     state_id = 0
@@ -41,8 +41,9 @@ def list_creation(number):
 
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
-    def __init__(self, positions):
+    def __init__(self, positions,n):
         self.structure = positions
+        self.number=n
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -76,8 +77,12 @@ class Board:
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        return Board(temp)
+        return Board(temp,max)
 
+    def escreve(self):
+        representation = ''
+        for i in range(self.number):
+            print(self.structure[i])
 
     # TODO: outros metodos da classe
 
@@ -120,7 +125,7 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
-    print(b1)
+    b1.escreve()
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
