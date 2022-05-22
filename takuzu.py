@@ -3,8 +3,8 @@
 # Além das funções e classes já definidas, podem acrescentar outras que considerem pertinentes.
 
 # Grupo 12:
-# 00000 Francisco Augusto
-# 00000 Luis Marques
+# 99218 Francisco Augusto
+# 99265 Luis Marques
 
 import sys
 import numpy
