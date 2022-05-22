@@ -7,6 +7,7 @@
 # 00000 Luis Marques
 
 import sys
+import numpy
 
 from search import (
     Problem,
@@ -17,6 +18,7 @@ from search import (
     greedy_search,
     recursive_best_first_search,
 )
+
 
 class TakuzuState:
     state_id = 0
@@ -41,26 +43,55 @@ def list_creation(number):
 
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
-    def __init__(self, positions,n):
+
+    def __init__(self, positions, n):
         self.structure = positions
-        self.number=n
+        self.number = n
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        # TODO
-        pass
+        return self.positions[row][col]
 
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
-        # TODO
-        pass
+        if row == 0:
+            lista = [None][self.positions[row + 1][col]]
+        elif row == self.number:
+            lista = [self.positions[row - 1][col]][None]
+        else:
+            lista = [self.positions[row - 1][col]][self.positions[row + 1][col]]
+        return lista
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente à esquerda e à direita,
         respectivamente."""
         # TODO
-        pass
+        if col == 0:
+            lista = [None][self.positions[row][col + 1]]
+        elif col == self.number:
+            lista = [self.positions[row][col - 1]][None]
+        else:
+            lista = [self.positions[row][col - 1]][self.positions[row][col + 1]]
+        return lista
+
+    def search_three_follow_vertical(self, row: int, col: int):
+        if row >= 2:
+            if self.positions[row - 1][col] == self.positions[row - 2][col]:
+                return True
+        elif row <= self.number - 2:
+            if self.positions[row + 1][col] == self.positions[row + 2][col]:
+                return True
+        return False
+
+    def search_three_follow_horizontal(self, row: int, col: int):
+        if col >= 2:
+            if self.positions[row][col - 1] == self.positions[row][col - 2]:
+                return True
+        elif col <= self.number - 2:
+            if self.positions[row][col - 1] == self.positions[row][col - 2]:
+                return True
+        return False
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -71,15 +102,15 @@ class Board:
             > from sys import stdin
             > stdin.readline()
         """
-        max = int(sys.stdin.readline())
-        temp = list_creation(max)
-        for i in range(max):
+        m = int(sys.stdin.readline())
+        temp = list_creation(m)
+        for i in range(m):
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        return Board(temp,max)
+        return Board(temp, m)
 
-    def escreve(self):
+    def write(self):
         representation = ''
         for i in range(self.number):
             print(self.structure[i])
@@ -125,7 +156,7 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
-    b1.escreve()
+    b1.write()
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
