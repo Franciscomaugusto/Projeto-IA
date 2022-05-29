@@ -7,7 +7,7 @@
 # 99265 Luis Marques
 
 import sys
-import numpy
+import numpy as np
 
 from search import (
     Problem,
@@ -31,6 +31,17 @@ class TakuzuState:
     def __lt__(self, other):
         return self.id < other.id
 
+    def verify_num(self, row: int, col: int, num: int):
+        return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row, col, num)
+
+    def get_empty_positions(self):
+        ls = np.array([[]])
+        for i in range(self.board.number):
+            for j in range(self.board.number):
+                if self.board.positions[i][j] == 2:
+                    np.append(ls, [[i, j]], axis=0)
+        return ls
+
     # TODO: outros metodos da classe
 
 
@@ -50,17 +61,17 @@ class Board:
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        return self.positions[row][col]
+        return self.positions[row,col]
 
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         if row == 0:
-            lista = [None, self.positions[row + 1][col]]
+            lista = [None, self.positions[row + 1, col]]
         elif row == self.number:
-            lista = [self.positions[row - 1][col], None]
+            lista = [self.positions[row - 1, col], None]
         else:
-            lista = [self.positions[row - 1][col], self.positions[row + 1][col]]
+            lista = [self.positions[row - 1, col], self.positions[row + 1, col]]
         return lista
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
@@ -68,33 +79,35 @@ class Board:
         respectivamente."""
         # TODO
         if col == 0:
-            lista = [None, self.positions[row][col + 1]]
+            lista = [None, self.positions[row, col + 1]]
         elif col == self.number:
-            lista = [self.positions[row][col - 1], None]
+            lista = [self.positions[row, col - 1], None]
         else:
-            lista = [self.positions[row][col - 1], self.positions[row][col + 1]]
+            lista = [self.positions[row, col - 1], self.positions[row, col + 1]]
         return lista
 
     def search_three_follow_vertical(self, row: int, col: int, num: int):
+        """Returns true if the insertion of num leads to a sequence of three equal numbers vertically"""
         if row >= 2:
-            if self.positions[row - 1][col] == self.positions[row - 2][col] == num:
+            if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
                 return True
         elif row <= self.number - 2:
-            if self.positions[row + 1][col] == self.positions[row + 2][col] == num:
+            if self.positions[row + 1, col] == self.positions[row + 2, col] == num:
                 return True
         return False
 
     def search_three_follow_horizontal(self, row: int, col: int, num: int):
+        """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
         if col >= 2:
-            if self.positions[row][col - 1] == self.positions[row][col - 2] == num:
+            if self.positions[row, col - 1] == self.positions[row, col - 2] == num:
                 return True
         elif col <= self.number - 2:
-            if self.positions[row][col + 1] == self.positions[row][col + 2] == num:
+            if self.positions[row, col + 1] == self.positions[row, col + 2] == num:
                 return True
         return False
 
-    """fazer função de procura de todas as posições vazias"""
-
+    def place_num(self,row: int, col: int, numb: int):
+        self.positions[row, col] = numb
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -111,10 +124,8 @@ class Board:
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        return Board(temp, m)
-
-    def place_num(self, row: int, col: int, num: int):
-        return self.search_three_follow_horizontal(row, col, num) and self.search_three_follow_vertical(row, col, num)
+        temp2 = np.array(temp)
+        return Board(temp2, m)
 
     def write(self):
         representation = ''
@@ -133,6 +144,8 @@ class Takuzu(Problem):
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
+
+        """verificar interativamente 0 e 1 bitch"""
         # TODO
         pass
 
