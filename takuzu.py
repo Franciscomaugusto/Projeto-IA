@@ -43,12 +43,15 @@ class TakuzuState:
         return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row, col, num)
 
     def find_obvious_positions(self, num):
-        oposto = {1: 0, 0: 1}
         for i in self.empty_positions:
-            if self.board.search_three_follow_vertical(i[0], i[1], num):
-                return [i[0], i[1], oposto[num]]
-            elif self.board.search_three_follow_horizontal(i[0], i[1], num):
-                return [i[0], i[1], oposto[num]]
+            if self.board.search_three_follow_vertical(i[0], i[1], 0):
+                return [i[0], i[1], 1]
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
+                return [i[0], i[1], 1]
+            if self.board.search_three_follow_vertical(i[0], i[1], 1):
+                return [i[0], i[1], 0]
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
+                return [i[0], i[1], 0]
         return -1
 
 
