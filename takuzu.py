@@ -19,13 +19,21 @@ from search import (
     recursive_best_first_search,
 )
 
+#Functions of no specific class
+def list_creation(number):
+    lst = [[]] * number
+    for i in range(number):
+        lst[i] = [] * number
+    return lst
 
 class TakuzuState:
     state_id = 0
+
     #Alterado empty_positions como argumento da criação do takuzu state
-    def __init__(self, board):
+    def __init__(self, board, empty):
         self.board = board
         self.id = TakuzuState.state_id
+        self.empty_positions = empty
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -34,30 +42,17 @@ class TakuzuState:
     def verify_num(self, row: int, col: int, num: int):
         return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row, col, num)
 
-    def get_empty_positions(self):
-        ls = np.array([[]])
-        for i in range(self.board.number):
-            for j in range(self.board.number):
-                if self.board.positions[i][j] == 2:
-                    np.append(ls, [[i, j]], axis=0)
-        return ls
-
-    def find_obvious_positions(self):
-        empty_positions = self.get_empty_positions()
-        for(i in empty_positions)
-            if(self.board.search_three_follow_vertical())
-
+    def find_obvious_positions(self, num):
+        oposto = {1: 0, 0: 1}
+        for i in self.empty_positions:
+            if self.board.search_three_follow_vertical(i[0], i[1], num):
+                return [i[0], i[1], oposto[num]]
+            elif self.board.search_three_follow_horizontal(i[0], i[1], num):
+                return [i[0], i[1], oposto[num]]
+        return -1
 
 
     # TODO: outros metodos da classe
-
-
-def list_creation(number):
-    lst = [[]] * number
-    for i in range(number):
-        lst[i] = [] * number
-    return lst
-
 
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
@@ -116,13 +111,13 @@ class Board:
     def place_num(self,row: int, col: int, numb: int):
         self.positions[row, col] = numb
 
-    def get_empty_positions1(self):
-        ls = np.array([[-1,-1]])
+    def get_empty_positions(self):
+        ls = np.array([[]])
         for i in range(self.number):
             for j in range(self.number):
-                if self.positions[i,j] == 2:
-                    ls = np.append(ls,[[i,j]],axis=0)
-        ls = np.delete(ls,0,0)
+                if self.positions[i][j] == 2:
+                    np.append(ls, [[i, j]], axis=0)
+        ls = np.delete(ls, 0, 0)
         return ls
 
     @staticmethod
@@ -162,6 +157,8 @@ class Takuzu(Problem):
         partir do estado passado como argumento."""
 
         """verificar interativamente 0 e 1 bitch"""
+
+        #Verificar se obvious play isn't available: use return.is_integer()
         # TODO
         pass
 
