@@ -22,7 +22,7 @@ from search import (
 
 class TakuzuState:
     state_id = 0
-
+    #Alterado empty_positions como argumento da criação do takuzu state
     def __init__(self, board):
         self.board = board
         self.id = TakuzuState.state_id
@@ -41,6 +41,13 @@ class TakuzuState:
                 if self.board.positions[i][j] == 2:
                     np.append(ls, [[i, j]], axis=0)
         return ls
+
+    def find_obvious_positions(self):
+        empty_positions = self.get_empty_positions()
+        for(i in empty_positions)
+            if(self.board.search_three_follow_vertical())
+
+
 
     # TODO: outros metodos da classe
 
@@ -109,6 +116,15 @@ class Board:
     def place_num(self,row: int, col: int, numb: int):
         self.positions[row, col] = numb
 
+    def get_empty_positions1(self):
+        ls = np.array([[-1,-1]])
+        for i in range(self.number):
+            for j in range(self.number):
+                if self.positions[i,j] == 2:
+                    ls = np.append(ls,[[i,j]],axis=0)
+        ls = np.delete(ls,0,0)
+        return ls
+
     @staticmethod
     def parse_instance_from_stdin():
         """Lê o test do standard input (stdin) que é passado como argumento
@@ -175,6 +191,7 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
+    print(b1.get_empty_positions1())
     print(b1.adjacent_horizontal_numbers(0, 0))
     print(b1.adjacent_vertical_numbers(1, 1))
     print(b1.search_three_follow_vertical(1,1,0))
