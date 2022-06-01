@@ -42,7 +42,7 @@ class TakuzuState:
     def verify_num(self, row: int, col: int, num: int):
         return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row, col, num)
 
-    def find_obvious_positions(self, num):
+    def find_obvious_positions(self):
         for i in self.empty_positions:
             if self.board.search_three_follow_vertical(i[0], i[1], 0):
                 return [i[0], i[1], 1]
@@ -120,7 +120,6 @@ class Board:
             for j in range(self.number):
                 if self.positions[i][j] == 2:
                     ls = np.append(ls, [[i, j]], axis=0)
-        ls = np.delete(ls, 0, 0)
         return ls
 
     @staticmethod
