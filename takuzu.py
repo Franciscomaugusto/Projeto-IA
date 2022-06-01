@@ -119,7 +119,7 @@ class Board:
         for i in range(self.number):
             for j in range(self.number):
                 if self.positions[i][j] == 2:
-                    np.append(ls, [[i, j]], axis=0)
+                    ls = np.append(ls, [[i, j]], axis=0)
         ls = np.delete(ls, 0, 0)
         return ls
 
@@ -191,11 +191,7 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
-    print(b1.get_empty_positions1())
-    print(b1.adjacent_horizontal_numbers(0, 0))
-    print(b1.adjacent_vertical_numbers(1, 1))
-    print(b1.search_three_follow_vertical(1,1,0))
-    print(b1.search_three_follow_horizontal(1,0,1))
+    print(b1.get_empty_positions())
 
     b1.write()
     # Ler o ficheiro de input de sys.argv[1],
