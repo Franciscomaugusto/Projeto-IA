@@ -20,47 +20,19 @@ from search import (
 )
 
 #Functions of no specific class
+
 def list_creation(number):
     lst = [[]] * number
     for i in range(number):
         lst[i] = [] * number
     return lst
 
-class TakuzuState:
-    state_id = 0
 
-    #Alterado empty_positions como argumento da criação do takuzu state
-    def __init__(self, board: Board, empty: array):
-        self.board = board
-        self.id = TakuzuState.state_id
-        self.empty_positions = empty
-        TakuzuState.state_id += 1
-
-    def __lt__(self, other):
-        return self.id < other.id
-
-    def verify_num(self, row: int, col: int, num: int):
-        return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row, col, num)
-
-    def find_obvious_position(self):
-        for i in self.empty_positions:
-            if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                return np.array([i[0], i[1], 1],int8)
-            elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                return np.array([i[0], i[1], 1], int 8)
-            if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                return np.array([i[0], i[1], 0], int8)
-            elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                return np.array([i[0], i[1], 0], int8)
-        return -1
-
-
-    # TODO: outros metodos da classe
 
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
 
-    def __init__(self, structure, n):
+    def __init__(self, structure: np.array, n: int):
         self.positions = structure
         self.number = n
 
@@ -115,7 +87,7 @@ class Board:
         self.positions[row, col] = numb
 
     def get_empty_positions(self):
-        ls = np.array([[-1,-1]], int8)
+        ls = np.array([[-1,-1]], dtype='int8')
         for i in range(self.number):
             for j in range(self.number):
                 if self.positions[i][j] == 2:
@@ -138,7 +110,7 @@ class Board:
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        temp2 = np.array(temp, int8)
+        temp2 = np.array(temp, dtype='int8')
         return Board(temp2, m)
 
     def get_lines(self):
@@ -155,23 +127,71 @@ class Board:
     # TODO: outros metodos da classe
 
 
+class TakuzuState:
+    state_id = 0
+
+    # Alterado empty_positions como argumento da criação do takuzu state
+
+    def __init__(self, board: Board, empty: np.array):
+        self.board = board
+        self.id = TakuzuState.state_id
+        self.empty_positions = empty
+        TakuzuState.state_id += 1
+
+    def __lt__(self, other):
+        return self.id < other.id
+
+    def verify_num(self, row: int, col: int, num: int):
+        return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row,
+                                                                                                                    col,
+                                                                                                                    num)
+
+    def find_obvious_position(self):
+        for i in self.empty_positions:
+            if self.board.search_three_follow_vertical(i[0], i[1], 0):
+                return np.array([i[0], i[1], 1], dtype='int8')
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
+                return np.array([i[0], i[1], 1], dtype='int8')
+            if self.board.search_three_follow_vertical(i[0], i[1], 1):
+                return np.array([i[0], i[1], 0], dtype='int8')
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
+                return np.array([i[0], i[1], 0], dtype='int8')
+        return -1
+
+    def find_obvious_positions(self):
+        lst_obv_pos = np.array([[-1,-1,-1]], dtype='int8')
+        for i in self.empty_positions:
+            if self.board.search_three_follow_vertical(i[0], i[1], 0):
+                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 1]], axis=0)
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
+                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 1]], axis=0)
+            if self.board.search_three_follow_vertical(i[0], i[1], 1):
+                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 0]], axis=0)
+            elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
+                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 0]], axis=0)
+        lst_obv_pos= np.delete(lst_obv_pos, 0, 0)
+        return lst_obv_pos
+
+    # TODO: outros metodos da classe
+
+
 class Takuzu(Problem):
 
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         empty = board.get_empty_positions()
-        state = new TakuzuState(board, empty)
+        state = TakuzuState(board, empty)
         return state
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
-        partir do estado passado como argumento."""
+        partir do estado passado como argumento. """
         array = state.find_obvious_positions()
         if array.is_integer():
             for i in state.board.number:
                 for j in state.board.number:
                     if state.board.positions[i][j] == 2:
-                        return np.array([[0],[i,j,1][i,j,0]], int8)
+                        return np.array([[0], [i,j,1], [i,j,0]], dtype='int8')
         else:
             return np.append([[1]], array)
 
@@ -184,7 +204,7 @@ class Takuzu(Problem):
         empty = state.empty
         index = np.argwhere(empty == [action[0], action[1]])
         newempty = empty.delete(index)
-        newstate = new TakuzuState(newboard, newempty)
+        newstate = TakuzuState(newboard, newempty)
         return newstate
 
 
@@ -205,7 +225,7 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
-    state= TakuzuState(b1,b1.get_empty_positions())
+    state= TakuzuState(b1, b1.get_empty_positions())
     print(state.find_obvious_positions())
 
     print(b1.get_empty_positions())
