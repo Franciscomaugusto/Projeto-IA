@@ -30,7 +30,7 @@ class TakuzuState:
     state_id = 0
 
     #Alterado empty_positions como argumento da criação do takuzu state
-    def __init__(self, board, empty):
+    def __init__(self, board: Board, empty: array):
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = empty
@@ -45,13 +45,13 @@ class TakuzuState:
     def find_obvious_position(self):
         for i in self.empty_positions:
             if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                return [i[0], i[1], 1]
+                return np.array([i[0], i[1], 1],int8)
             elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                return [i[0], i[1], 1]
+                return np.array([i[0], i[1], 1], int 8)
             if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                return [i[0], i[1], 0]
+                return np.array([i[0], i[1], 0], int8)
             elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                return [i[0], i[1], 0]
+                return np.array([i[0], i[1], 0], int8)
         return -1
 
 
@@ -115,7 +115,7 @@ class Board:
         self.positions[row, col] = numb
 
     def get_empty_positions(self):
-        ls = np.array([[-1,-1]])
+        ls = np.array([[-1,-1]], int8)
         for i in range(self.number):
             for j in range(self.number):
                 if self.positions[i][j] == 2:
@@ -138,8 +138,14 @@ class Board:
             line = sys.stdin.readline()
             row = [int(s) for s in line.split() if s.isdigit()]
             temp[i] = row
-        temp2 = np.array(temp)
+        temp2 = np.array(temp, int8)
         return Board(temp2, m)
+
+    def get_lines(self):
+        pass
+
+    def get_columns(self):
+        pass
 
     def write(self):
         representation = ''
@@ -150,35 +156,43 @@ class Board:
 
 
 class Takuzu(Problem):
+
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
-        # TODO
-        pass
+        empty = board.get_empty_positions()
+        state = new TakuzuState(board, empty)
+        return state
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento."""
-
-        """verificar interativamente 0 e 1 bitch"""
-
-        #Verificar se obvious play isn't available: use return.is_integer()
-        # TODO
-        pass
+        array = state.find_obvious_positions()
+        if array.is_integer():
+            for i in state.board.number:
+                for j in state.board.number:
+                    if state.board.positions[i][j] == 2:
+                        return np.array([[0],[i,j,1][i,j,0]], int8)
+        else:
+            return np.append([[1]], array)
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        # TODO
-        pass
+        newboard = state.board.place_num(action[0], action[1], action[2])
+        empty = state.empty
+        index = np.argwhere(empty == [action[0], action[1]])
+        newempty = empty.delete(index)
+        newstate = new TakuzuState(newboard, newempty)
+        return newstate
+
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        # TODO
-        pass
+
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
