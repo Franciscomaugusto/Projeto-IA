@@ -19,14 +19,14 @@ from search import (
     recursive_best_first_search,
 )
 
-#Functions of no specific class
+
+# Functions of no specific class
 
 def list_creation(number):
     lst = [[]] * number
     for i in range(number):
         lst[i] = [] * number
     return lst
-
 
 
 class Board:
@@ -38,7 +38,7 @@ class Board:
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
-        return self.positions[row,col]
+        return self.positions[row, col]
 
     def adjacent_vertical_numbers(self, row: int, col: int) -> (int, int):
         """Devolve os valores imediatamente abaixo e acima,
@@ -83,11 +83,11 @@ class Board:
                 return True
         return False
 
-    def place_num(self,row: int, col: int, numb: int):
+    def place_num(self, row: int, col: int, numb: int):
         self.positions[row, col] = numb
 
     def get_empty_positions(self):
-        ls = np.array([[-1,-1]], dtype='int8')
+        ls = np.array([[-1, -1]], dtype='int8')
         for i in range(self.number):
             for j in range(self.number):
                 if self.positions[i][j] == 2:
@@ -114,10 +114,21 @@ class Board:
         return Board(temp2, m)
 
     def get_lines(self):
-        pass
+        list_of_lines = np.array([list(range(self.number))], dtype='int8')
+        for i in range(self.number):
+            list_of_lines = np.append(list_of_lines, [self.positions[i]], axis=0)
+        list_of_lines = np.delete(list_of_lines, 0, 0)
+        return list_of_lines
 
     def get_columns(self):
-        pass
+        list_of_columns = np.array([list(range(self.number))], dtype='int8')
+        for i in range(self.number):
+            list_of_column = np.array(list(), dtype='int8')
+            for j in range(self.number):
+                list_of_column = np.append(list_of_column, self.positions[j][i])
+            list_of_columns = np.append(list_of_columns, [list_of_column], axis=0)
+        list_of_columns = np.delete(list_of_columns, 0, 0)
+        return list_of_columns
 
     def write(self):
         representation = ''
@@ -159,18 +170,52 @@ class TakuzuState:
         return -1
 
     def find_obvious_positions(self):
-        lst_obv_pos = np.array([[-1,-1,-1]], dtype='int8')
+        lst_obv_pos = np.array([[-1, -1, -1]], dtype='int8')
         for i in self.empty_positions:
             if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 1]], axis=0)
+                lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 1]], axis=0)
             elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 1]], axis=0)
+                lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 1]], axis=0)
             if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 0]], axis=0)
+                lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 0]], axis=0)
             elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                lst_obv_pos = np.append(lst_obv_pos,[[i[0], i[1], 0]], axis=0)
-        lst_obv_pos= np.delete(lst_obv_pos, 0, 0)
+                lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 0]], axis=0)
+        lst_obv_pos = np.delete(lst_obv_pos, 0, 0)
         return lst_obv_pos
+
+    def is_full_line(self, line: int):
+        list_lines = self.board.get_lines()
+        for i in range(self.board.number):
+            if list_lines[line][i] == 2:
+                return False
+        return True
+
+    def is_full_column(self, column: int):
+        list_columns = self.board.get_columns()
+        for i in range(self.board.number):
+            if list_columns[column][i] == 2:
+                return False
+        return True
+
+    def equal_lines(self):
+        for i in range(self.board.number):
+            if i+1 <= self.board.number:
+                for j in range(self.board.number)[i+1:]:
+                    if self.is_full_line(i) and self.is_full_line(j):
+                        if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
+                            return True
+                            break
+        return False
+
+    def equal_columns(self):
+        for i in range(self.board.number):
+            if i + 1 <= self.board.number:
+                for j in range(self.board.number)[i+1:]:
+                    if self.is_full_column(i) and self.is_full_column(j):
+                        if np.array_equal(self.board.get_columns()[i], self.board.get_columns()[j]):
+                            return True
+                            break
+        return False
 
     # TODO: outros metodos da classe
 
@@ -191,7 +236,7 @@ class Takuzu(Problem):
             for i in state.board.number:
                 for j in state.board.number:
                     if state.board.positions[i][j] == 2:
-                        return np.array([[0], [i,j,1], [i,j,0]], dtype='int8')
+                        return np.array([[0], [i, j, 1], [i, j, 0]], dtype='int8')
         else:
             return np.append([[1]], array)
 
@@ -207,12 +252,10 @@ class Takuzu(Problem):
         newstate = TakuzuState(newboard, newempty)
         return newstate
 
-
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
@@ -225,10 +268,11 @@ class Takuzu(Problem):
 if __name__ == "__main__":
     # TODO:
     b1 = Board.parse_instance_from_stdin()
-    state= TakuzuState(b1, b1.get_empty_positions())
-    print(state.find_obvious_positions())
-
-    print(b1.get_empty_positions())
+    state = TakuzuState(b1, b1.get_empty_positions())
+    print(b1.get_lines())
+    print(b1.get_columns())
+    print(state.equal_lines())
+    print(state.equal_columns())
 
     b1.write()
     # Ler o ficheiro de input de sys.argv[1],
