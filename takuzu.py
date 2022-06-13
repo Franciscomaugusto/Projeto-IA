@@ -91,7 +91,7 @@ class Board:
             for j in range(self.number):
                 if self.positions[i][j] == 2:
                     ls.append([i, j])
-        return np.ndarray(ls[1:])
+        return np.ndarray(ls[1:], axis=0)
 
     @staticmethod
     def parse_instance_from_stdin():
