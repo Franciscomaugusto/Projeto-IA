@@ -237,7 +237,7 @@ class Takuzu(Problem):
             for i in range(state.board.number):
                 for j in range(state.board.number):
                     if state.board.positions[i][j] == 2:
-                        return np.array([i, j, 1], [i, j, 0], dtype='int8')
+                        return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
         else:
             return array
 
