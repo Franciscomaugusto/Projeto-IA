@@ -28,7 +28,6 @@ def list_creation(number):
         lst[i] = [] * number
     return lst
 
-
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
 
@@ -204,7 +203,8 @@ class TakuzuState:
                     if self.is_full_line(i) and self.is_full_line(j):
                         if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
                             return True
-                            break
+                    else:
+                        return True
         return False
 
     def equal_columns(self):
@@ -214,7 +214,8 @@ class TakuzuState:
                     if self.is_full_column(i) and self.is_full_column(j):
                         if np.array_equal(self.board.get_columns()[i], self.board.get_columns()[j]):
                             return True
-                            break
+                    else:
+                        return True
         return False
 
     # TODO: outros metodos da classe
@@ -226,7 +227,7 @@ class Takuzu(Problem):
         """O construtor especifica o estado inicial."""
         empty = board.get_empty_positions()
         state = TakuzuState(board, empty)
-        return state
+
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
@@ -245,17 +246,48 @@ class Takuzu(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-        newboard = state.board.place_num(action[0], action[1], action[2])
+        state.board.place_num(action[0], action[1], action[2])
         empty = state.empty
         index = np.argwhere(empty == [action[0], action[1]])
-        newempty = empty.delete(index)
-        newstate = TakuzuState(newboard, newempty)
-        return newstate
+        new_empty = empty.delete(index)
+        new_state = TakuzuState(state.board, new_empty)
+        return new_state
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
+        if state.equal_lines():
+            return False
+        if state.equal_columns():
+            return False
+        number = state.board.number
+        board = state.board
+        for i in range(number):
+            num_1_line = 0
+            num_0_line = 0
+            num_1_col = 0
+            num_0_col = 0
+            for j in range(number):
+                if board[i][j] == 1:
+                    num_1_line += 1
+                else:
+                    num_0_line += 1
+                if board[j][i] == 1:
+                    num_1_col += 1
+                else:
+                    num_0_col += 1
+            if (num % 2) == 2:
+                if (num_1 != num_0) or (num_1_col != num_0_col):
+                    return False
+            else:
+                if (num_1 >= num_0 + 2) or (num_1_col >= num_0_col + 2):
+                    return False
+                if (num_1 + 2 <= num_0) or (num_1_col + 2 <= num_0_col + 2):
+                    return False
+        return True
+
+
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
