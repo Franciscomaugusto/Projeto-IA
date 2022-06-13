@@ -169,7 +169,7 @@ class TakuzuState:
 
     def find_obvious_positions(self):
         lst_obv_pos = np.array([[-1, -1, -1]], dtype='int8')
-        empty = np.array(self.empty_positions)
+        empty = self.empty_positions
         print(empty)
         for i in range(self.board.number):
             if self.board.search_three_follow_vertical(empty[i,0], empty[i,1], 0):
