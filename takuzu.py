@@ -233,7 +233,7 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         array = state.find_obvious_positions()
-        if np.array_equal(array, np.array([])):
+        if array.size == 0:
             for i in range(state.board.number):
                 for j in range(state.board.number):
                     if state.board.positions[i][j] == 2:
@@ -247,9 +247,9 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
         state.board.place_num(action[0], action[1], action[2])
-        empty = state.empty
+        empty = state.empty_positions
         index = np.argwhere(empty == [action[0], action[1]])
-        new_empty = empty.delete(index)
+        new_empty = np.delete(empty,index)
         new_state = TakuzuState(state.board, new_empty)
         return new_state
 
