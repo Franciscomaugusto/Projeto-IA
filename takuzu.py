@@ -141,7 +141,7 @@ class TakuzuState:
 
     # Alterado empty_positions como argumento da criação do takuzu state
 
-    def __init__(self, board: Board, empty: list):
+    def __init__(self, board: Board, empty: ndarray):
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = empty
