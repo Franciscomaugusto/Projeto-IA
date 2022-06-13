@@ -233,7 +233,7 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         array = state.find_obvious_positions()
-        if array.is_integer():
+        if isinstance(array, int):
             for i in range(state.board.number):
                 for j in range(state.board.number):
                     if state.board.positions[i][j] == 2:
