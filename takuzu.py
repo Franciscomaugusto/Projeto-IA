@@ -234,12 +234,12 @@ class Takuzu(Problem):
         partir do estado passado como argumento. """
         array = state.find_obvious_positions()
         if array.is_integer():
-            for i in state.board.number:
-                for j in state.board.number:
+            for i in range(state.board.number):
+                for j in range(state.board.number):
                     if state.board.positions[i][j] == 2:
-                        return np.array([[0], [i, j, 1], [i, j, 0]], dtype='int8')
+                        return np.array([i, j, 1], [i, j, 0], dtype='int8')
         else:
-            return np.append([[1]], array)
+            return array
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -299,14 +299,13 @@ class Takuzu(Problem):
 
 if __name__ == "__main__":
     # TODO:
-    b1 = Board.parse_instance_from_stdin()
-    state = TakuzuState(b1, b1.get_empty_positions())
-    print(b1.get_lines())
-    print(b1.get_columns())
-    print(state.equal_lines())
-    print(state.equal_columns())
+    board = Board.parse_instance_from_stdin()
+    Tk = Takuzu(board)
+    final_state = depth_first_tree_search(Tk)
+    final_state.state.board.write()
 
-    b1.write()
+
+
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
