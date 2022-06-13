@@ -226,7 +226,7 @@ class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         empty = board.get_empty_positions()
-        state = TakuzuState(board, empty)
+        self.initial = TakuzuState(board, empty)
 
 
     def actions(self, state: TakuzuState):
