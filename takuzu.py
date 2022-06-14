@@ -91,7 +91,7 @@ class Board:
             for j in range(self.number):
                 if self.positions[i][j] == 2:
                     ls.append([i, j])
-        return np.ndarray(ls[1:], axis=0)
+        return np.array(ls[1:])
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -141,7 +141,7 @@ class TakuzuState:
 
     # Alterado empty_positions como argumento da criação do takuzu state
 
-    def __init__(self, board: Board, empty: ndarray):
+    def __init__(self, board: Board, empty: np.ndarray):
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = np.copy(empty)
@@ -170,16 +170,18 @@ class TakuzuState:
     def find_obvious_positions(self):
         lst_obv_pos = np.array([[-1, -1, -1]], dtype='int8')
         empty = self.empty_positions
-        print(empty)
-        for i in range(self.board.number):
-            if self.board.search_three_follow_vertical(empty[i,0], empty[i,1], 0):
-                lst_obv_pos = np.append(lst_obv_pos, [[empty[i,0], empty[i,1], 1]], axis=0)
-            elif self.board.search_three_follow_horizontal(empty[i, 0], empty[i, 1], 0):
-                lst_obv_pos = np.append(lst_obv_pos, [[empty[i, 0], empty[i, 1], 1]], axis=0)
-            if self.board.search_three_follow_vertical(empty[i, 0], empty[i, 1], 1):
-                lst_obv_pos = np.append(lst_obv_pos, [[empty[i, 0], empty[i, 1], 0]], axis=0)
-            elif self.board.search_three_follow_horizontal(empty[i, 0], empty[i, 1], 1):
-                lst_obv_pos = np.append(lst_obv_pos, [[empty[i, 0], empty[i, 1], 0]], axis=0)
+        for i in empty:
+            if(isinstance(i,np.ndarray)):
+                print('entrei caralho')
+                print(i,type(i))
+                if self.board.search_three_follow_vertical(i[0], i[1], 0):
+                    lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 1]], axis=0)
+                elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
+                    lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 1]], axis=0)
+                if self.board.search_three_follow_vertical(i[0], i[1], 1):
+                    lst_obv_pos = np.append(lst_obv_pos, [[i[0], empty[i, 1], 0]], axis=0)
+                elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
+                    lst_obv_pos = np.append(lst_obv_pos, [[i[0], i[1], 0]], axis=0)
         lst_obv_pos = np.delete(lst_obv_pos, 0, 0)
         return lst_obv_pos
 
