@@ -144,7 +144,7 @@ class TakuzuState:
     def __init__(self, board: Board, empty: ndarray):
         self.board = board
         self.id = TakuzuState.state_id
-        self.empty_positions = empty
+        self.empty_positions = np.copy(empty)
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -227,7 +227,7 @@ class Takuzu(Problem):
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
         empty = board.get_empty_positions()
-        self.initial = TakuzuState(board, empty)
+        self.initial = TakuzuState(board, np.copy(empty))
 
 
     def actions(self, state: TakuzuState):
