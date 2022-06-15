@@ -272,21 +272,21 @@ class Takuzu(Problem):
             num_1_col = 0
             num_0_col = 0
             for j in range(number):
-                if board[i][j] == 1:
+                if board.positions[i][j] == 1:
                     num_1_line += 1
                 else:
                     num_0_line += 1
-                if board[j][i] == 1:
+                if board.positions[j][i] == 1:
                     num_1_col += 1
                 else:
                     num_0_col += 1
-            if (num % 2) == 2:
-                if (num_1 != num_0) or (num_1_col != num_0_col):
+            if (number % 2) == 2:
+                if (num_1_line != num_0_line) or (num_1_col != num_0_col):
                     return False
             else:
-                if (num_1 >= num_0 + 2) or (num_1_col >= num_0_col + 2):
+                if (num_1_line >= num_0_line + 2) or (num_1_col >= num_0_col + 2):
                     return False
-                if (num_1 + 2 <= num_0) or (num_1_col + 2 <= num_0_col + 2):
+                if (num_1_line + 2 <= num_0_line) or (num_1_col + 2 <= num_0_col + 2):
                     return False
         return True
 
