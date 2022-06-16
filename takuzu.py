@@ -15,6 +15,7 @@ from search import (
     astar_search,
     breadth_first_tree_search,
     depth_first_tree_search,
+    depth_first_graph_search,
     greedy_search,
     recursive_best_first_search,
 )
@@ -43,11 +44,11 @@ class Board:
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         if row == 0:
-            lista = [None, self.positions[row + 1, col]]
-        elif row == self.number:
-            lista = [self.positions[row - 1, col], None]
+            lista = [self.positions[row + 1, col],None]
+        elif row == self.number-1:
+            lista = [None,self.positions[row - 1, col]]
         else:
-            lista = [self.positions[row - 1, col], self.positions[row + 1, col]]
+            lista = [self.positions[row + 1, col], self.positions[row - 1, col]]
         return lista
 
     def adjacent_horizontal_numbers(self, row: int, col: int) -> (int, int):
@@ -56,7 +57,7 @@ class Board:
         # TODO
         if col == 0:
             lista = [None, self.positions[row, col + 1]]
-        elif col == self.number:
+        elif col == self.number-1:
             lista = [self.positions[row, col - 1], None]
         else:
             lista = [self.positions[row, col - 1], self.positions[row, col + 1]]
@@ -156,33 +157,20 @@ class TakuzuState:
                                                                                                                     col,
                                                                                                                     num)
 
-    def find_obvious_position(self):
-        for i in self.empty_positions:
-            if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                return [i[0], i[1], 1]
-            elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                return [i[0], i[1], 1]
-            if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                return [i[0], i[1], 0]
-            elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                return [i[0], i[1], 0]
-        return -1
-
     def find_obvious_positions(self):
         lst_obv_pos = [[]]
         empty = self.empty_positions
         for i in empty:
-            if(isinstance(i,np.ndarray)):
-                print('entrei caralho')
-                print(i,type(i))
+            if(isinstance(i,list)):
+                print('obvious:',i)
                 if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                    lst_obv_pos.append([[i[0], i[1], 1]])
+                    lst_obv_pos.append([i[0], i[1], 1])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                    lst_obv_pos.append([[i[0], i[1], 1]])
+                    lst_obv_pos.append([i[0], i[1], 1])
                 if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                    lst_obv_pos.append([[i[0], i[1], 0]])
+                    lst_obv_pos.append([i[0], i[1], 0])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                    lst_obv_pos.append([[i[0], i[1], 0]])
+                    lst_obv_pos.append([i[0], i[1], 0])
         return lst_obv_pos[1:]
 
     def is_full_line(self, line: int):
@@ -235,16 +223,19 @@ class Takuzu(Problem):
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
-        array = state.find_obvious_positions()
-        if len(array)== 0:
-            for i in range(state.board.number):
-                for j in range(state.board.number):
-                    if state.board.positions[i][j] == 2:
-                        print('return ',state.id,'\n')
-                        return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
-            return [[-1, -1, -1]]
+        if (type(state) != type(None)):
+            array = state.find_obvious_positions()
+            if len(array)== 0:
+                for i in range(state.board.number):
+                    for j in range(state.board.number):
+                        if state.board.positions[i][j] == 2:
+                            print('return ',state.id,'\n')
+                            return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
+                return []
+            else:
+                return array
         else:
-            return array
+            raise NotImplementedError
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -257,44 +248,54 @@ class Takuzu(Problem):
             del empty[empty.index([action[0], action[1]])]
         except ValueError:
             pass
+        state.board.write()
+        print('\n')
         new_state = TakuzuState(state.board, empty)
-        print(action)
         return new_state
+
+
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        if state.equal_lines():
-            return False
-        if state.equal_columns():
-            return False
-        number = state.board.number
-        board = state.board
-        board.write()
-        for i in range(number):
-            num_1_line = 0
-            num_0_line = 0
-            num_1_col = 0
-            num_0_col = 0
-            for j in range(number):
-                if board.positions[i][j] == 1:
-                    num_1_line += 1
+        if(type(state) != type(None) ):
+            if state.equal_lines():
+                print('linha')
+                return False
+            if state.equal_columns():
+                print('coluna')
+                return False
+            number = state.board.number
+            board = state.board
+            for i in range(number):
+                num_1_line = 0
+                num_0_line = 0
+                num_1_col = 0
+                num_0_col = 0
+                for j in range(number):
+                    if board.positions[i][j] == 1:
+                        num_1_line += 1
+                    else:
+                        num_0_line += 1
+                    if board.positions[j][i] == 1:
+                        num_1_col += 1
+                    else:
+                        num_0_col += 1
+                if (number % 2) == 0:
+                    if (num_1_line != num_0_line) or (num_1_col != num_0_col):
+                        print('1')
+                        return False
                 else:
-                    num_0_line += 1
-                if board.positions[j][i] == 1:
-                    num_1_col += 1
-                else:
-                    num_0_col += 1
-            if (number % 2) == 2:
-                if (num_1_line != num_0_line) or (num_1_col != num_0_col):
-                    return False
-            else:
-                if (num_1_line >= num_0_line + 2) or (num_1_col >= num_0_col + 2):
-                    return False
-                if (num_1_line + 2 <= num_0_line) or (num_1_col + 2 <= num_0_col + 2):
-                    return False
-        return True
+                    if (num_1_line >= num_0_line + 2) or (num_1_col >= num_0_col + 2):
+                        print('2')
+                        return False
+                    if (num_1_line + 2 <= num_0_line) or (num_1_col + 2 <= num_0_col + 2):
+                        print('3')
+                        return False
+            return True
+        else:
+            pass
 
 
 
@@ -308,12 +309,16 @@ class Takuzu(Problem):
 
 if __name__ == "__main__":
     # TODO:
+    # Ler tabuleiro do ficheiro 'i1.txt' (Figura 1):
+    # $ python3 takuzu < i1.txt
     board = Board.parse_instance_from_stdin()
-    Tk = Takuzu(board)
-    final_state = depth_first_tree_search(Tk)
-    final_state.state.board.write()
-
-
+    # Criar uma instância de Takuzu:
+    problem = Takuzu(board)
+    # Obter o nó solução usando a procura em profundidade:
+    goal_node = depth_first_tree_search(problem)
+    # Verificar se foi atingida a solução
+    print("Is goal?", problem.goal_test(goal_node.state))
+    print("Solution:\n", goal_node.state.board, sep="")
 
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
