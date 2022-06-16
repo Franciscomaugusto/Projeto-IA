@@ -83,7 +83,8 @@ class Board:
         return False
 
     def place_num(self, row: int, col: int, numb: int):
-        self.positions[row, col] = numb
+        if row != -1:
+            self.positions[row, col] = numb
 
     def get_empty_positions(self):
         ls = [[]]
@@ -241,7 +242,7 @@ class Takuzu(Problem):
                     if state.board.positions[i][j] == 2:
                         print('return ',state.id,'\n')
                         return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
-            return [[]]
+            return [[-1, -1, -1]]
         else:
             return array
 
