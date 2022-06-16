@@ -65,21 +65,31 @@ class Board:
 
     def search_three_follow_vertical(self, row: int, col: int, num: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers vertically"""
+        if row == 0:
+            if self.positions[row + 1, col] == self.positions[row + 2, col] == num:
+                return True
         if row >= 2:
             if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
                 return True
-        elif row <= self.number - 2:
+        if row <= self.number - 2 && row != 0:
             if self.positions[row + 1, col] == self.positions[row + 2, col] == num:
+                return True
+            if self.positions[row - 1, col] == self.positions[row + 1, col] == num:
                 return True
         return False
 
     def search_three_follow_horizontal(self, row: int, col: int, num: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
-        if col >= 2:
-            if self.positions[row, col - 1] == self.positions[row, col - 2] == num:
-                return True
-        elif col <= self.number - 2:
+        if col == 0:
             if self.positions[row, col + 1] == self.positions[row, col + 2] == num:
+                return True
+        if col >= 2:
+            if self.positions[row, col -1] == self.positions[row, col - 2] == num:
+                return True
+        if col <= self.number - 2 && col != 0:
+            if self.positions[row, col + 1] == self.positions[row, col + 2] == num:
+                return True
+            if self.positions[row, col - 1] == self.positions[row, col + 1] == num:
                 return True
         return False
 
