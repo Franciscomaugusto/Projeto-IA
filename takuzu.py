@@ -235,11 +235,13 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         array = state.find_obvious_positions()
-        if array.size == 0:
+        if len(array)== 0:
             for i in range(state.board.number):
                 for j in range(state.board.number):
                     if state.board.positions[i][j] == 2:
+                        print('return ',state.id,'\n')
                         return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
+            return [[]]
         else:
             return array
 
@@ -250,8 +252,12 @@ class Takuzu(Problem):
         self.actions(state)."""
         state.board.place_num(action[0], action[1], action[2])
         empty = state.empty_positions
-        empty.remove([action[0],action[1]])
+        try:
+            del empty[empty.index([action[0], action[1]])]
+        except ValueError:
+            pass
         new_state = TakuzuState(state.board, empty)
+        print(action)
         return new_state
 
     def goal_test(self, state: TakuzuState):
@@ -264,6 +270,7 @@ class Takuzu(Problem):
             return False
         number = state.board.number
         board = state.board
+        board.write()
         for i in range(number):
             num_1_line = 0
             num_0_line = 0
