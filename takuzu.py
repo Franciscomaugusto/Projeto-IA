@@ -170,7 +170,7 @@ class Board:
     def count_num_by_collumn(self,num:int,column:int):
         l = self.get_columns()[column]
         count = 0
-        for i in self.number:
+        for i in range(self.number):
             if l[i] == num:
                 count = count + 1
         return count
@@ -178,7 +178,7 @@ class Board:
     def count_num_by_lines(self,num:int,line:int):
         l = self.get_lines()[line]
         count = 0
-        for i in self.number:
+        for i in range(self.number):
             if l[i] == num:
                 count = count + 1
         return count
@@ -213,6 +213,42 @@ class TakuzuState:
     def find_obvious_positions(self):
         lst_obv_pos = [[]]
         empty = self.empty_positions
+        if(self.board.number%2 == 0):
+            for i in range(self.board.number):
+                if self.board.count_num_by_lines(0,i)==self.board.number/2:
+                    for l in empty:
+                        if l[0] == i:
+                            lst_obv_pos.append([l[0],l[1],1])
+                elif(self.board.count_num_by_lines(1,i)==self.board.number/2):
+                    for l in empty:
+                        if l[0] == i:
+                            lst_obv_pos.append([l[0],l[1],0])
+                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
+                    for l in empty:
+                        if l[1] == i:
+                            lst_obv_pos.append([l[0], l[1], 1])
+                if self.board.count_num_by_collumn(1, i) == self.board.number / 2:
+                    for l in empty:
+                        if l[1] == i:
+                            lst_obv_pos.append([l[0], l[1], 0])
+        if(self.board.number%2 != 0):
+            for i in range(self.board.number):
+                if self.board.count_num_by_lines(0,i)==self.board.number/2 + 1:
+                    for l in empty:
+                        if l[0] == i:
+                            lst_obv_pos.append([l[0],l[1],1])
+                elif self.board.count_num_by_lines(1,i)==self.board.number/2 + 1:
+                    for l in empty:
+                        if l[0] == i:
+                            lst_obv_pos.append([l[0],l[1],0])
+                if self.board.count_num_by_collumn(0,i)==self.board.number/2+1:
+                    for l in empty:
+                        if l[1] == i:
+                            lst_obv_pos.append([l[0], l[1], 1])
+                if self.board.count_num_by_collumn(1, i) == self.board.number / 2+1:
+                    for l in empty:
+                        if l[1] == i:
+                            lst_obv_pos.append([l[0], l[1], 0])
         for i in empty:
             if(isinstance(i,list)):
                 print('obvious:',i)
