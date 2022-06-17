@@ -216,8 +216,6 @@ class TakuzuState:
         for i in empty:
             if(isinstance(i,list)):
                 print('obvious:',i)
-                if self.number%2 == 0:
-
                 if self.board.search_three_follow_vertical(i[0], i[1], 0):
                     lst_obv_pos.append([i[0], i[1], 1])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
