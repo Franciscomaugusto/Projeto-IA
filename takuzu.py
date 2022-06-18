@@ -7,6 +7,8 @@
 # 99265 Luis Marques
 
 import sys
+import time
+
 import numpy as np
 
 from search import (
@@ -188,6 +190,8 @@ class Board:
         for i in range(self.number):
             print(self.positions[i])
 
+
+
     # TODO: outros metodos da classe
 
 
@@ -233,7 +237,7 @@ class TakuzuState:
                             lst_obv_pos.append([l[0], l[1], 0])
         if(self.board.number%2 != 0):
             for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2 + 1:
+                if self.board.count_num_by_lines(0,i)==self.board.number/2:
                     for l in empty:
                         if l[0] == i:
                             lst_obv_pos.append([l[0],l[1],1])
@@ -241,7 +245,7 @@ class TakuzuState:
                     for l in empty:
                         if l[0] == i:
                             lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2+1:
+                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 1])
@@ -284,8 +288,10 @@ class TakuzuState:
                 for j in range(self.board.number)[i+1:]:
                     if self.is_full_line(i) and self.is_full_line(j):
                         if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
+                            print('equals ',i ,j)
                             return True
                     else:
+                        print('not full\n')
                         return True
         return False
 
@@ -321,6 +327,8 @@ class Takuzu(Problem):
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
                             print('return ',state.id,'\n')
+                            #verificar o numero de zeros e de uns
+                            #perguntar como o oliveira está a passar state, board, tudo para o result
                             return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
                 return []
             else:
@@ -333,6 +341,7 @@ class Takuzu(Problem):
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
+
         state.board.place_num(action[0], action[1], action[2])
         empty = state.empty_positions
         try:
@@ -350,6 +359,7 @@ class Takuzu(Problem):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
+        print('goal testando no ',state.id,'\n')
         if(type(state) != type(None) ):
             if state.equal_lines():
                 print('linha')
@@ -359,34 +369,36 @@ class Takuzu(Problem):
                 return False
             number = state.board.number
             board = state.board
-            for i in range(number):
-                num_1_line = 0
-                num_0_line = 0
-                num_1_col = 0
-                num_0_col = 0
-                for j in range(number):
-                    if board.positions[i][j] == 1:
-                        num_1_line += 1
-                    else:
-                        num_0_line += 1
-                    if board.positions[j][i] == 1:
-                        num_1_col += 1
-                    else:
-                        num_0_col += 1
-                if (number % 2) == 0:
-                    if (num_1_line != num_0_line) or (num_1_col != num_0_col):
+            if state.board.number%2 == 0:
+                for i in range(state.board.number):
+                    if state.board.count_num_by_lines(0,i) > state.board.number/2:
+                        return False
+                    if state.board.count_num_by_lines(1,i) > state.board.number/2:
+                        return False
+                    if state.board.count_num_by_collumn(0,i) > state.board.number/2:
+                        return False
+                    if state.board.count_num_by_collumn(1,i) > state.board.number/2:
+                        return False
+                    return True
+            else:
+                for i in range(state.board.number):
+                    if state.board.count_num_by_lines(0,i) > state.board.number/2+1:
                         print('1')
                         return False
-                else:
-                    if (num_1_line >= num_0_line + 2) or (num_1_col >= num_0_col + 2):
+                    if state.board.count_num_by_lines(1,i) > state.board.number/2+1:
                         print('2')
                         return False
-                    if (num_1_line + 2 <= num_0_line) or (num_1_col + 2 <= num_0_col + 2):
+                    if state.board.count_num_by_collumn(0,i) > state.board.number/2+1:
                         print('3')
                         return False
-            return True
-        else:
-            pass
+                    if state.board.count_num_by_collumn(1,i) > state.board.number/2+1:
+                        print('4')
+                        return False
+                    return True
+
+
+
+
 
 
 
@@ -409,7 +421,8 @@ if __name__ == "__main__":
     goal_node = depth_first_tree_search(problem)
     # Verificar se foi atingida a solução
     print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board, sep="")
+    print("Solution:\n")
+    goal_node.state.board.write()
 
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
