@@ -334,17 +334,20 @@ class Takuzu(Problem):
         if action[0] == 1:
             state.board.place_num(action[1], action[2], action[3])
             empty = state.empty_positions
+            state.board.write()
+            print('\n')
+            new_state = TakuzuState(new_board, empty)
         if action[0] == 0:
             new_board = Board(state.board.positions, state.board.number)
             new_board.place_num(action[0], action[1], action[2])
             empty = state.empty_positions.copy()
+            state.board.write()
+            print('\n')
+            new_state = TakuzuState(new_board, empty)
         try:
             del empty[empty.index([action[0], action[1]])]
         except ValueError:
             pass
-        state.board.write()
-        print('\n')
-        new_state = TakuzuState(new_board, empty)
         return new_state
 
     def goal_test(self, state: TakuzuState):
