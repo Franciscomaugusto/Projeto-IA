@@ -35,7 +35,7 @@ class Board:
     """Representação interna de um tabuleiro de Takuzu."""
 
     def __init__(self, structure: np.array, n: int):
-        self.positions = structure
+        self.positions = np.copy(structure)
         self.number = n
 
     def get_number(self, row: int, col: int) -> int:
@@ -342,15 +342,16 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
 
-        state.board.place_num(action[0], action[1], action[2])
-        empty = state.empty_positions
+        new_board = board(state.board.positions, state.board.number)
+        new_board.place_num(action[0], action[1], action[2])
+        empty = state.empty_positions.copy()
         try:
             del empty[empty.index([action[0], action[1]])]
         except ValueError:
             pass
         state.board.write()
         print('\n')
-        new_state = TakuzuState(state.board, empty)
+        new_state = TakuzuState(new_board, empty)
         return new_state
 
 
@@ -420,10 +421,12 @@ if __name__ == "__main__":
     # Obter o nó solução usando a procura em profundidade:
     goal_node = depth_first_tree_search(problem)
     # Verificar se foi atingida a solução
-    print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n")
-    goal_node.state.board.write()
-
+    if goal_node is None:
+        print("Is goal?\nFalse\n")
+    else:
+        print("Is goal?", problem.goal_test(goal_node.state))
+        print("Solution:\n")
+        goal_node.state.board.write()
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
     # Retirar a solução a partir do nó resultante,
