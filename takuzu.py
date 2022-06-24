@@ -92,8 +92,6 @@ class Board:
                 return True
         return False
 
-
-
     def search_three_follow_horizontal(self, row: int, col: int, num: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
         if col == 0:
@@ -190,11 +188,6 @@ class Board:
         for i in range(self.number):
             print(self.positions[i])
 
-
-
-    # TODO: outros metodos da classe
-
-
 class TakuzuState:
     state_id = 0
 
@@ -217,56 +210,54 @@ class TakuzuState:
     def find_obvious_positions(self):
         lst_obv_pos = [[]]
         empty = self.empty_positions
-        if(self.board.number%2 == 0):
+        if self.board.number % 2 == 0:
             for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
+                if self.board.count_num_by_lines(0, i) == self.board.number/2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif(self.board.count_num_by_lines(1,i)==self.board.number/2):
+                            lst_obv_pos.append([1, l[0], l[1], 1])
+                elif self.board.count_num_by_lines(1, i) == self.board.number / 2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
+                            lst_obv_pos.append([1, l[0], l[1], 0])
+                if self.board.count_num_by_collumn(0, i) == self.board.number/2:
                     for l in empty:
                         if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 1])
+                            lst_obv_pos.append([1, l[0], l[1], 1])
                 if self.board.count_num_by_collumn(1, i) == self.board.number / 2:
                     for l in empty:
                         if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 0])
-        if(self.board.number%2 != 0):
+                            lst_obv_pos.append([1, l[0], l[1], 0])
+        if self.board.number % 2 != 0:
             for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
+                if self.board.count_num_by_lines(0, i) == self.board.number/2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif self.board.count_num_by_lines(1,i)==self.board.number/2 + 1:
+                            lst_obv_pos.append([1, l[0], l[1], 1])
+                elif self.board.count_num_by_lines(1, i) == self.board.number/2 + 1:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
+                            lst_obv_pos.append([1, l[0], l[1], 0])
+                if self.board.count_num_by_collumn(0, i) == self.board.number/2:
                     for l in empty:
                         if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 1])
+                            lst_obv_pos.append([1, l[0], l[1], 1])
                 if self.board.count_num_by_collumn(1, i) == self.board.number / 2+1:
                     for l in empty:
                         if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 0])
+                            lst_obv_pos.append([1, l[0], l[1], 0])
         for i in empty:
-            if(isinstance(i,list)):
-                print('obvious:',i)
+            if isinstance(i, list):
+                print('obvious:', i)
                 if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
+                    lst_obv_pos.append([1, i[0], i[1], 1])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
+                    lst_obv_pos.append([1, i[0], i[1], 1])
                 if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
+                    lst_obv_pos.append([1, i[0], i[1], 0])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
+                    lst_obv_pos.append([1, i[0], i[1], 0])
         return lst_obv_pos[1:]
-
-
 
     def is_full_line(self, line: int):
         list_lines = self.board.get_lines()
@@ -288,7 +279,7 @@ class TakuzuState:
                 for j in range(self.board.number)[i+1:]:
                     if self.is_full_line(i) and self.is_full_line(j):
                         if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
-                            print('equals ',i ,j)
+                            print('equals ', i, j)
                             return True
                     else:
                         print('not full\n')
@@ -316,7 +307,6 @@ class Takuzu(Problem):
         empty = board.get_empty_positions()
         self.initial = TakuzuState(board, empty)
 
-
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
@@ -328,8 +318,7 @@ class Takuzu(Problem):
                         if state.board.positions[i][j] == 2:
                             print('return ',state.id,'\n')
                             #verificar o numero de zeros e de uns
-                            #perguntar como o oliveira está a passar state, board, tudo para o result
-                            return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
+                            return np.array([[0, i, j, 1], [0, i, j, 0]], dtype='int8')
                 return []
             else:
                 return array
@@ -342,9 +331,13 @@ class Takuzu(Problem):
         das presentes na lista obtida pela execução de
         self.actions(state)."""
 
-        new_board = board(state.board.positions, state.board.number)
-        new_board.place_num(action[0], action[1], action[2])
-        empty = state.empty_positions.copy()
+        if action[0] == 1:
+            state.board.place_num(action[1], action[2], action[3])
+            empty = state.empty_positions
+        if action[0] == 0:
+            new_board = Board(state.board.positions, state.board.number)
+            new_board.place_num(action[0], action[1], action[2])
+            empty = state.empty_positions.copy()
         try:
             del empty[empty.index([action[0], action[1]])]
         except ValueError:
@@ -353,8 +346,6 @@ class Takuzu(Problem):
         print('\n')
         new_state = TakuzuState(new_board, empty)
         return new_state
-
-
 
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
@@ -396,12 +387,6 @@ class Takuzu(Problem):
                         print('4')
                         return False
                     return True
-
-
-
-
-
-
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
