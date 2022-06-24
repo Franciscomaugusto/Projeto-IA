@@ -336,7 +336,7 @@ class Takuzu(Problem):
             empty = state.empty_positions
             state.board.write()
             print('\n')
-            new_state = TakuzuState(new_board, empty)
+            new_state = TakuzuState(state.board, empty)
         if action[0] == 0:
             new_board = Board(state.board.positions, state.board.number)
             new_board.place_num(action[0], action[1], action[2])
