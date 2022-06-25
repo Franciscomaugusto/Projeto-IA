@@ -187,9 +187,10 @@ class Board:
 
     def write(self):
         linhas = self.get_lines()
-        for i in range(self.number-1):
-            print('\t'.join(str(linhas[i])[1:-1]))
-        print('\t'.join(str(linhas[i])[1:-1]))
+        for i in range(self.number - 1):
+            print('\t'.join(map(str,linhas[i])))
+        print('\t'.join(map(str,linhas[self.number-1])))
+
 
 
     # TODO: outros metodos da classe
@@ -217,16 +218,6 @@ class TakuzuState:
     def find_obvious_positions(self):
         lst_obv_pos = [[]]
         empty = self.empty_positions
-        for i in empty:
-            if (isinstance(i, list)):
-                if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
-                elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
-                if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
-                elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
         if(self.board.number%2 == 0):
             for i in range(self.board.number):
                 if self.board.count_num_by_lines(0,i)==self.board.number/2:
@@ -263,7 +254,16 @@ class TakuzuState:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 0])
-
+        for i in empty:
+            if(isinstance(i,list)):
+                if self.board.search_three_follow_vertical(i[0], i[1], 0):
+                    lst_obv_pos.append([i[0], i[1], 1])
+                elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
+                    lst_obv_pos.append([i[0], i[1], 1])
+                if self.board.search_three_follow_vertical(i[0], i[1], 1):
+                    lst_obv_pos.append([i[0], i[1], 0])
+                elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
+                    lst_obv_pos.append([i[0], i[1], 0])
         return lst_obv_pos[1:]
 
 
@@ -319,15 +319,17 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            array1 = state.find_obvious_positions()
-            if len(array1)== 0:
+            array = state.find_obvious_positions()
+            if len(array)== 0:
                 for i in range(state.board.number):
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
-                            return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
+                            #verificar o numero de zeros e de uns
+                            #perguntar como o oliveira está a passar state, board, tudo para o result
+                            return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
                 return []
             else:
-                return array1
+                return array
         else:
             raise NotImplementedError
 
@@ -360,24 +362,33 @@ class Takuzu(Problem):
                 return False
             number = state.board.number
             board = state.board
-            if(state.board.number % 2 ==0):
+            if state.board.number%2 == 0:
                 for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0, i) > state.board.number/2:
+                    if state.board.count_num_by_lines(0,i) > state.board.number/2:
                         return False
-                    elif (state.board.count_num_by_lines(1, i) > state.board.number/2):
+                    if state.board.count_num_by_lines(1,i) > state.board.number/2:
                         return False
-                    if state.board.count_num_by_collumn(0, i) > state.board.number/2:
+                    if state.board.count_num_by_collumn(0,i) > state.board.number/2:
                         return False
-                    if state.board.count_num_by_collumn(1, i) > state.board.number/2:
+                    if state.board.count_num_by_collumn(1,i) > state.board.number/2:
                         return False
-                return True
-            if (state.board.number % 2 != 0):
+                    return True
+            else:
                 for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0, i) > state.board.number / 2 and state.board.count_num_by_lines(1, i) > state.board.number / 2 + 1 :
+                    if state.board.count_num_by_lines(0,i) > state.board.number/2+1:
                         return False
-                    if state.board.count_num_by_collumn(0, i) > state.board.number / 2 and state.board.count_num_by_collumn(1, i) == state.board.number / 2 + 1:
+                    if state.board.count_num_by_lines(1,i) > state.board.number/2+1:
                         return False
-                return True
+                    if state.board.count_num_by_collumn(0,i) > state.board.number/2+1:
+                        return False
+                    if state.board.count_num_by_collumn(1,i) > state.board.number/2+1:
+                        return False
+                    return True
+
+
+
+
+
 
 
     def h(self, node: Node):
