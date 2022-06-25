@@ -31,12 +31,17 @@ def list_creation(number):
         lst[i] = [] * number
     return lst
 
+
 class Board:
     """Representação interna de um tabuleiro de Takuzu."""
 
     def __init__(self, structure: np.array, n: int):
         self.positions = np.copy(structure)
         self.number = n
+        self.line_1 = self.get_line(1)
+        self.line_0 = self.get_line(0)
+        self.column_1 = self.get_column(1)
+        self.column_0 = self.get_column(0)
 
     def get_number(self, row: int, col: int) -> int:
         """Devolve o valor na respetiva posição do tabuleiro."""
@@ -46,9 +51,9 @@ class Board:
         """Devolve os valores imediatamente abaixo e acima,
         respectivamente."""
         if row == 0:
-            lista = [self.positions[row + 1, col],None]
-        elif row == self.number-1:
-            lista = [None,self.positions[row - 1, col]]
+            lista = [self.positions[row + 1, col], None]
+        elif row == self.number - 1:
+            lista = [None, self.positions[row - 1, col]]
         else:
             lista = [self.positions[row + 1, col], self.positions[row - 1, col]]
         return lista
@@ -59,7 +64,7 @@ class Board:
         # TODO
         if col == 0:
             lista = [None, self.positions[row, col + 1]]
-        elif col == self.number-1:
+        elif col == self.number - 1:
             lista = [self.positions[row, col - 1], None]
         else:
             lista = [self.positions[row, col - 1], self.positions[row, col + 1]]
@@ -67,58 +72,62 @@ class Board:
 
     def search_three_follow_vertical(self, row: int, col: int, num: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers vertically"""
-        if (row == 0):
+        if row == 0:
             if self.positions[row + 1, col] == self.positions[row + 2, col] == num:
                 return True
         if row == self.number - 1:
             if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
                 return True
-        if (self.number == 3 and row == 1):
+        if self.number == 3 and row == 1:
             if self.positions[row - 1, col] == self.positions[row + 1, col] == num:
                 return True
-        if(self.number == 3 and row == 2):
+        if self.number == 3 and row == 2:
             if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
                 return True
         if self.number > 3 and row == 1:
             if self.positions[row - 1, col] == \
-                    self.positions[row + 1, col]==num or self.positions[row + 1, col] == self.positions[row + 2, col] == num :
+                    self.positions[row + 1, col] == num or self.positions[row + 1, col] ==\
+                    self.positions[row + 2, col] == num:
                 return True
-        if(self.number > 3 and row == self.number-2):
-           if self.positions[row - 1, col] == self.positions[row + 1, col]==num or self.positions[row - 1, col] == self.positions[row - 2, col] == num:
-               return True
-
-        if self.number > 4 and row in range(self.number)[2:self.number-2]:
-            if self.positions[row - 1, col] == self.positions[row + 1, col] == num or self.positions[row + 1, col] == self.positions[row + 2, col] == num or self.positions[row - 1, col] == self.positions[row - 2, col] == num :
+        if self.number > 3 and row == self.number - 2:
+            if self.positions[row - 1, col] == self.positions[row + 1, col] == num or self.positions[row - 1, col] == \
+                    self.positions[row - 2, col] == num:
+                return True
+        if self.number > 4 and row in range(self.number)[2:self.number - 2]:
+            if self.positions[row - 1, col] == self.positions[row + 1, col] == num or self.positions[row + 1, col] == \
+                    self.positions[row + 2, col] == num or self.positions[row - 1, col] == \
+                    self.positions[row - 2, col] == num:
                 return True
         return False
-
-
 
     def search_three_follow_horizontal(self, row: int, col: int, num: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
         if col == 0:
-            if self.positions[row , col+1] == self.positions[row, col+2] == num:
+            if self.positions[row, col + 1] == self.positions[row, col + 2] == num:
                 return True
         if col == self.number - 1:
-            if self.positions[row, col-1] == self.positions[row, col-2] == num:
+            if self.positions[row, col - 1] == self.positions[row, col - 2] == num:
                 return True
-        if (self.number == 3 and col == 1):
-            if self.positions[row, col-1] == self.positions[row, col+1] == num:
+        if self.number == 3 and col == 1:
+            if self.positions[row, col - 1] == self.positions[row, col + 1] == num:
                 return True
-        if (self.number == 3 and col == 2):
-            if self.positions[row, col-1] == self.positions[row, col - 2] == num:
+        if self.number == 3 and col == 2:
+            if self.positions[row, col - 1] == self.positions[row, col - 2] == num:
                 return True
         if self.number > 3 and col == 1:
-            if self.positions[row, col-1] == \
-                    self.positions[row, col+1]==num or self.positions[row, col+1] == self.positions[row, col+2] == num :
+            if self.positions[row, col - 1] == \
+                    self.positions[row, col + 1] == num or self.positions[row, col + 1] == self.positions[row, col + 2] \
+                    == num:
                 return True
-        if (self.number > 3 and col == self.number - 2):
-            if self.positions[row , col-1] == \
-                    self.positions[row, col+1]==num or self.positions[row , col-1] == self.positions[row , col-2] == num :
+        if self.number > 3 and col == self.number - 2:
+            if self.positions[row, col - 1] == \
+                    self.positions[row, col + 1] == num or self.positions[row, col - 1] == self.positions[row, col - 2] \
+                    == num:
                 return True
-        if self.number > 4 and col in range(self.number)[2:self.number-2]:
-            if self.positions[row, col-1] == self.positions[row, col+1]==num or self.positions[row, col+1] == self.positions[row, col+2] == num or self.positions[row, col-1] == \
-                    self.positions[row, col-2]==num :
+        if self.number > 4 and col in range(self.number)[2:self.number - 2]:
+            if self.positions[row, col - 1] == self.positions[row, col + 1] == num or self.positions[row, col + 1] == \
+                    self.positions[row, col + 2] == num or self.positions[row, col - 1] == self.positions[row, col - 2] \
+                    == num:
                 return True
         return False
 
@@ -169,15 +178,23 @@ class Board:
         list_of_columns = np.delete(list_of_columns, 0, 0)
         return list_of_columns
 
-    def count_num_by_collumn(self,num:int,column:int):
+    def count_num_by_column(self, num: int, column: int):
         l = self.get_columns()[column]
         count = 0
-        for i in range(self.number):
+        number = self.number
+        for i in range(number):
             if l[i] == num:
                 count = count + 1
         return count
 
-    def count_num_by_lines(self,num:int,line:int):
+    def get_column(self, num: int):
+        number = self.number
+        lista = []
+        for i in number:
+            lista.append(self.count_num_by_column(num, i))
+        return lista
+
+    def count_num_by_lines(self, num: int, line: int):
         l = self.get_lines()[line]
         count = 0
         for i in range(self.number):
@@ -185,14 +202,18 @@ class Board:
                 count = count + 1
         return count
 
+    def get_line(self, num: int):
+        number = self.number
+        lista = []
+        for i in number:
+            lista.append(self.count_num_by_line(num, i))
+        return lista
+
     def write(self):
         linhas = self.get_lines()
-        for i in range(self.number-1):
+        for i in range(self.number - 1):
             print('\t'.join(str(linhas[i])[1:-1]))
         print('\t'.join(str(linhas[i])[1:-1]))
-
-
-    # TODO: outros metodos da classe
 
 
 class TakuzuState:
@@ -218,7 +239,7 @@ class TakuzuState:
         lst_obv_pos = [[]]
         empty = self.empty_positions
         for i in empty:
-            if (isinstance(i, list)):
+            if isinstance(i, list):
                 if self.board.search_three_follow_vertical(i[0], i[1], 0):
                     lst_obv_pos.append([i[0], i[1], 1])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
@@ -227,46 +248,44 @@ class TakuzuState:
                     lst_obv_pos.append([i[0], i[1], 0])
                 elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
                     lst_obv_pos.append([i[0], i[1], 0])
-        if(self.board.number%2 == 0):
+        if self.board.number % 2 == 0:
             for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
+                if self.board.line[i] == self.board.number / 2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif(self.board.count_num_by_lines(1,i)==self.board.number/2):
+                            lst_obv_pos.append([l[0], l[1], 1])
+                elif self.board.line_1[i] == self.board.number / 2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
+                            lst_obv_pos.append([l[0], l[1], 0])
+                if self.board.column_0[i] == self.board.number / 2:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 1])
-                if self.board.count_num_by_collumn(1, i) == self.board.number / 2:
+                if self.board.column_1[i] == self.board.number / 2:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 0])
-        if(self.board.number%2 != 0):
+        if self.board.number % 2 != 0:
             for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
+                if self.board.line_0[i] == self.board.number / 2:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif self.board.count_num_by_lines(1,i)==self.board.number/2 + 1:
+                            lst_obv_pos.append([l[0], l[1], 1])
+                elif self.board.line_1[i] == self.board.number / 2 + 1:
                     for l in empty:
                         if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
+                            lst_obv_pos.append([l[0], l[1], 0])
+                if self.board.collumn_0[i] == self.board.number / 2:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 1])
-                if self.board.count_num_by_collumn(1, i) == self.board.number / 2+1:
+                if self.board.column_1[i] == self.board.number / 2 + 1:
                     for l in empty:
                         if l[1] == i:
                             lst_obv_pos.append([l[0], l[1], 0])
 
         return lst_obv_pos[1:]
-
-
 
     def is_full_line(self, line: int):
         list_lines = self.board.get_lines()
@@ -284,8 +303,8 @@ class TakuzuState:
 
     def equal_lines(self):
         for i in range(self.board.number):
-            if i+1 <= self.board.number:
-                for j in range(self.board.number)[i+1:]:
+            if i + 1 <= self.board.number:
+                for j in range(self.board.number)[i + 1:]:
                     if self.is_full_line(i) and self.is_full_line(j):
                         if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
                             return True
@@ -296,7 +315,7 @@ class TakuzuState:
     def equal_columns(self):
         for i in range(self.board.number):
             if i + 1 <= self.board.number:
-                for j in range(self.board.number)[i+1:]:
+                for j in range(self.board.number)[i + 1:]:
                     if self.is_full_column(i) and self.is_full_column(j):
                         if np.array_equal(self.board.get_columns()[i], self.board.get_columns()[j]):
                             return True
@@ -314,13 +333,12 @@ class Takuzu(Problem):
         empty = board.get_empty_positions()
         self.initial = TakuzuState(board, empty)
 
-
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
-        if (type(state) != type(None)):
+        if type(state) != type(None):
             array1 = state.find_obvious_positions()
-            if len(array1)== 0:
+            if len(array1) == 0:
                 for i in range(state.board.number):
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
@@ -347,38 +365,35 @@ class Takuzu(Problem):
         new_state = TakuzuState(new_board, empty)
         return new_state
 
-
-
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        if(type(state) != type(None) ):
+        if type(state) != type(None):
             if state.equal_lines():
                 return False
             if state.equal_columns():
                 return False
             number = state.board.number
             board = state.board
-            if(state.board.number % 2 ==0):
-                for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0, i) > state.board.number/2:
+            if number % 2 == 0:
+                for i in range(number):
+                    if board.line_0[i] > number / 2:
                         return False
-                    elif (state.board.count_num_by_lines(1, i) > state.board.number/2):
+                    elif board.line_1[i] > number / 2:
                         return False
-                    if state.board.count_num_by_collumn(0, i) > state.board.number/2:
+                    if board.collumn_0[i] > number / 2:
                         return False
-                    if state.board.count_num_by_collumn(1, i) > state.board.number/2:
-                        return False
-                return True
-            if (state.board.number % 2 != 0):
-                for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0, i) > state.board.number / 2 and state.board.count_num_by_lines(1, i) > state.board.number / 2 + 1 :
-                        return False
-                    if state.board.count_num_by_collumn(0, i) > state.board.number / 2 and state.board.count_num_by_collumn(1, i) == state.board.number / 2 + 1:
+                    if board.column_1[i] > number / 2:
                         return False
                 return True
-
+            if number % 2 != 0:
+                for i in range(number):
+                    if board.column_0[i] > number / 2 and board.line_1[i] > number / 2 + 1:
+                        return False
+                    if board.column_0[i] > number / 2 and board.column_1[i] == number / 2 + 1:
+                        return False
+                return True
 
     def h(self, node: Node):
         """Função heuristica utilizada para a procura A*."""
