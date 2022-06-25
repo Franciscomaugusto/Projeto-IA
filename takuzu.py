@@ -212,8 +212,8 @@ class Board:
     def write(self):
         linhas = self.get_lines()
         for i in range(self.number - 1):
-            print('\t'.join(str(linhas[i])[1:-1]))
-        print('\t'.join(str(linhas[i])[1:-1]))
+            print('\t'.join(map(str,linhas[i])))
+        print('\t'.join(map(str,linhas[self.number-1])))
 
 
 class TakuzuState:
