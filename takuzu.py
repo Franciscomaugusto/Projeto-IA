@@ -326,7 +326,7 @@ class TakuzuState:
                     self.board.write()
                     print('\n')
                     return False
-                elif self.line_1[i] > number / 2:
+                if self.line_1[i] > number / 2:
                     print('Corta ramo: mais 1 linha: ',i)
                     print(self.line_1)
                     print(self.line_1[i], number / 2)
@@ -415,6 +415,7 @@ class Takuzu(Problem):
                                 print('PREENCHER A ULTIMA\n')
                             return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
             else:
+                print('action corta ramo')
                 return []
         else:
             raise NotImplementedError
