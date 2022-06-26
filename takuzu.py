@@ -438,8 +438,6 @@ class TakuzuState:
         board = self.board
         if not board.three_follow(linha,coluna):
             return False
-        if not self.count_num_restrict(linha,coluna):
-            return False
         return True
 
     def pre_processing(self):
