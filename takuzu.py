@@ -198,7 +198,6 @@ class Board:
             list1 = np.append(list1,[self.count_num_by_column(num,i)])
         return list1[1:]
 
-
     def three_follow(self, linha: int, coluna: int):
         if self.search_three_follow_vertical(linha, coluna):
             return False
@@ -240,6 +239,7 @@ class TakuzuState:
         return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row,
                                                                                                                     col,
                                                                                                                     num)
+
     def is_full_line(self, line: int):
         list_lines = self.board.get_lines()
         for i in range(self.board.number):
@@ -281,8 +281,8 @@ class TakuzuState:
         try:
             print('array')
             print(self.empty_positions)
-            print(linha, coluna )
-            self.empty_positions = np.delete(self.empty_positions,np.argwhere(self.empty_positions == [[linha,coluna]]), axis=0)
+            print(linha, coluna)
+            self.empty_positions = self.empty_positions.remove([linha,coluna])
         except ValueError:
             pass
         if num == 0:
@@ -322,32 +322,37 @@ class TakuzuState:
                 self.place_num_state(linha, coluna, 0)
 
     def count_num_restrict(self):
-        if (self.board.number % 2 == 0):
-            for i in range(self.board.number):
-                if self.line_0[i] > self.board.number / 2:
+        number = self.board.number
+        if number % 2 == 0:
+            for i in range(number):
+                if self.line_0[i] > number / 2:
+                    print('Corta ramo: mais 0 linha')
                     return False
-                elif (self.line_1[i] > self.board.number / 2):
+                elif self.line_1[i] > number / 2:
+                    print('Corta ramo: mais 1 linha')
                     return False
-                if self.column_0[i] > self.board.number / 2:
+                if self.column_0[i] > number / 2:
+                    print('Corta ramo: mais 0 coluna')
                     return False
-                if self.column_1[i] > self.board.number / 2:
+                if self.column_1[i] > number / 2:
+                    print('Corta ramo: mais 1 coluna')
                     return False
             return True
-        if (self.board.number % 2 != 0):
-            for i in range(self.board.number):
-                if self.line_0[i] >= self.board.number / 2 + 2:
+        if number % 2 != 0:
+            for i in range(number):
+                if self.line_0[i] >= number / 2 + 2:
                     self.board.write()
                     print('goal false: mais 0')
                     return False
-                if self.line_1[i] >= self.board.number / 2 + 2 :
+                if self.line_1[i] >= number / 2 + 2 :
                     self.board.write()
                     print('goal false: mais 0')
                     return False
-                if self.column_0[i] >= self.board.number / 2 + 2 :
+                if self.column_0[i] >= number / 2 + 2 :
                     self.board.write()
                     print('goal false: mais 1')
                     return False
-                if self.column_1[i] >= self.board.number / 2 + 2:
+                if self.column_1[i] >= number / 2 + 2:
                     self.board.write()
                     print('goal false: mais 1')
                     return False
@@ -365,7 +370,7 @@ class TakuzuState:
         empty = self.empty_positions
         for pos in empty:
             print(pos)
-            self.num_restrict(pos[0],pos[1])
+            self.num_restrict(pos[0], pos[1])
 
 
 
