@@ -234,6 +234,7 @@ class TakuzuState:
         self.line_1 = np.copy(line_1)
         self.column_0 = np.copy(column_0)
         self.column_1 = np.copy(column_1)
+        self.restriction_safe = True
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -281,7 +282,9 @@ class TakuzuState:
         return False
 
     def place_num_state(self, linha: int, coluna: int, num: int):
-        self.board.place_num(linha,coluna,num)
+        self.board.place_num(linha, coluna, num)
+        if not self.verify_restrictions(linha,coluna):
+            self.restriction_safe = False
         try:
             del self.empty_positions[self.empty_positions.index([linha, coluna])]
         except ValueError:
@@ -322,53 +325,69 @@ class TakuzuState:
                 print('Eighth option', linha, coluna)
                 self.place_num_state(linha, coluna, 0)
 
+    def put_obv_three(self,linha: int,coluna: int, num: int):
+            if num == 0 :
+                if self.board.search_three_follow_vertical(linha, coluna, num+1):
+                    self.place_num_state(linha, coluna, num)
+                elif self.board.search_three_follow_horizontal(linha, coluna, num+1):
+                    self.place_num_state(linha, coluna, num)
+            if num == 1:
+                if self.board.search_three_follow_vertical(linha, coluna, num-1):
+                    self.place_num_state(linha, coluna, num)
+                elif self.board.search_three_follow_horizontal(linha, coluna, num-1):
+                    self.place_num_state(linha, coluna, num)
 
 
-    def count_num_restrict(self):
+    def count_num_restrict(self, linha: int, coluna: int):
         number = self.board.number
+        valor = self.board.positions[linha,coluna]
         if number % 2 == 0:
-            for i in range(number):
-                if self.line_0[i] > number / 2:
-                    print('Corta ramo: mais 0 linha: ',i)
-                    print(self.line_0[i],number/2)
+            if valor == 0:
+                if self.line_0[linha] > number / 2:
+                    print('Corta ramo: mais 0 linha: ',linha)
+                    print(self.line_0[linha],number/2)
                     self.board.write()
                     print('\n')
                     return False
-                if self.line_1[i] > number / 2:
-                    print('Corta ramo: mais 1 linha: ',i)
+                if self.column_0[coluna] > number / 2:
+                    print('Corta ramo: mais 0 coluna ',coluna)
+                    print(self.column_0[coluna], number / 2)
+                    self.board.write()
+                    print('\n')
+                    return False
+            if valor == 1:
+                if self.line_1[linha] > number / 2:
+                    print('Corta ramo: mais 1 linha: ',linha)
                     print(self.line_1)
-                    print(self.line_1[i], number / 2)
+                    print(self.line_1[linha], number / 2)
                     self.board.write()
                     print('\n')
                     return False
-                if self.column_0[i] > number / 2:
-                    print('Corta ramo: mais 0 coluna ',i)
-                    print(self.column_0[i], number / 2)
+                if self.column_1[coluna] > number / 2:
+                    print('Corta ramo: mais 1 coluna: ',coluna)
+                    print(self.column_1[coluna], number / 2)
                     self.board.write()
                     print('\n')
                     return False
-                if self.column_1[i] > number / 2:
-                    print('Corta ramo: mais 1 coluna: ',i)
-                    print(self.column_1[i], number / 2)
-                    self.board.write()
-                    print('\n')
-                    return False
+            self.board.write()
+            print('goal True:')
             return True
         if number % 2 != 0:
-            for i in range(number):
-                if self.line_0[i] >= number / 2 + 2:
+            if valor == 0:
+                if self.line_0[linha] >= number / 2 + 2:
                     self.board.write()
                     print('goal false: mais 0')
                     return False
-                if self.line_1[i] >= number / 2 + 2 :
-                    self.board.write()
-                    print('goal false: mais 0')
-                    return False
-                if self.column_0[i] >= number / 2 + 2 :
+                if self.column_0[coluna] >= number / 2 + 2 :
                     self.board.write()
                     print('goal false: mais 1')
                     return False
-                if self.column_1[i] >= number / 2 + 2:
+            if valor == 1:
+                if self.line_1[linha] >= number / 2 + 2 :
+                    self.board.write()
+                    print('goal false: mais 0')
+                    return False
+                if self.column_1[coluna] >= number / 2 + 2:
                     self.board.write()
                     print('goal false: mais 1')
                     return False
@@ -378,20 +397,20 @@ class TakuzuState:
 
 
 
-    def verify_restrictions(self):
+    def verify_restrictions(self, linha: int, coluna: int):
         board = self.board
-        number = board.number
-        for i in range(number):
-            for j in range(number):
-                if not board.three_follow(i,j):
-                    return False
+        if not board.three_follow(linha,coluna):
+            return False
+        if not self.count_num_restrict(linha,coluna):
+            return False
         return True
 
 
     def pre_processing(self):
         empty = self.empty_positions
         for pos in empty:
-            self.num_restrict(pos[0], pos[1])
+            self.put_obv_three(pos[0], pos[1],0)
+            self.put_obv_three(pos[0], pos[1], 1)
 
 
 
@@ -421,7 +440,7 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            if(state.verify_restrictions()):
+            if state.restriction_safe:
                 for i in range(state.board.number):
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
@@ -476,8 +495,8 @@ class Takuzu(Problem):
                     if not board.three_follow(i,j):
                         print('goal false: seguidas 0 e 1')
                         return False
-
-        if state.count_num_restrict():
+                    if not state.count_num_restrict(i,j):
+                        return False
             return True
         return False
 
