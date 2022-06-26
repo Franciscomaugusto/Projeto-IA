@@ -131,7 +131,7 @@ class Board:
                 if self.positions[i,j] == 2:
                     ls = np.append(ls,[[i, j]],axis=0)
         ls = np.delete(ls, (0), axis=0)
-        return ls
+        return list(ls)
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -222,7 +222,7 @@ class TakuzuState:
 
     # Alterado empty_positions como argumento da criação do takuzu state
 
-    def __init__(self, board: Board, empty: np.array, line_0: np.array, line_1: np.array, column_0: np.array, column_1: np.array):
+    def __init__(self, board: Board, empty: list, line_0: np.array, line_1: np.array, column_0: np.array, column_1: np.array):
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = empty
@@ -279,7 +279,10 @@ class TakuzuState:
     def place_num_state(self, linha: int, coluna: int, num: int):
         self.board.place_num(linha,coluna,num)
         try:
-            self.empty_positions = np.delete(self.empty_positions, np.where(self.empty_positions == [linha,coluna]), axis=0)
+            print('array')
+            print(self.empty_positions)
+            print(linha, coluna )
+            self.empty_positions = np.delete(self.empty_positions,np.argwhere(self.empty_positions == [[linha,coluna]]), axis=0)
         except ValueError:
             pass
         if num == 0:
@@ -291,23 +294,31 @@ class TakuzuState:
 
     def num_restrict(self, linha: int, coluna: int):
         number = self.board.number
-        if (number % 2 == 0):
+        if number % 2 == 0:
             if self.line_0[linha] == number / 2:
-                self.place_num_state(linha,coluna,1)
-            elif (self.line_1[linha] == self.board.number / 2):
-                self.place_num_state(linha, coluna, 0)
-            if self.column_0[coluna] == self.board.number / 2:
+                print('First option', linha, coluna)
                 self.place_num_state(linha, coluna, 1)
-            if self.column_1[coluna] == self.board.number / 2:
+            elif self.line_1[linha] == self.board.number / 2:
+                print('Second option', linha, coluna)
                 self.place_num_state(linha, coluna, 0)
-        if (self.board.number % 2 != 0):
-            if self.line_0[linha] == state.board.number / 2 and self.line_1[linha] == self.board.number / 2 + 1:
+            elif self.column_0[coluna] == self.board.number / 2:
+                print('Third option', linha, coluna)
                 self.place_num_state(linha, coluna, 1)
-            if self.line_1[linha] == state.board.number / 2 and self.line_0[linha] == self.board.number / 2 + 1:
+            elif self.column_1[coluna] == self.board.number / 2:
+                print('Fourth option', linha, coluna)
                 self.place_num_state(linha, coluna, 0)
-            if self.column_0[coluna] == state.board.number / 2 and self.column_1[coluna] == self.board.number / 2 + 1:
+        if self.board.number % 2 != 0:
+            if self.line_0[linha] == self.board.number / 2 and self.line_1[linha] == self.board.number / 2 + 1:
+                print('Fifth option', linha, coluna)
                 self.place_num_state(linha, coluna, 1)
-            if self.column_1[coluna] == state.board.number / 2 and self.column_0[coluna] == self.board.number / 2 + 1:
+            elif self.line_1[linha] == self.board.number / 2 and self.line_0[linha] == self.board.number / 2 + 1:
+                print('Sixth option', linha, coluna)
+                self.place_num_state(linha, coluna, 0)
+            elif self.column_0[coluna] == self.board.number / 2 and self.column_1[coluna] == self.board.number / 2 + 1:
+                print('Seventh option', linha, coluna)
+                self.place_num_state(linha, coluna, 1)
+            elif self.column_1[coluna] == self.board.number / 2 and self.column_0[coluna] == self.board.number / 2 + 1:
+                print('Eighth option', linha, coluna)
                 self.place_num_state(linha, coluna, 0)
 
     def count_num_restrict(self):
