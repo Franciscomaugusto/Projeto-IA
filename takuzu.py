@@ -279,9 +279,6 @@ class TakuzuState:
     def place_num_state(self, linha: int, coluna: int, num: int):
         self.board.place_num(linha,coluna,num)
         try:
-            print('array')
-            print(self.empty_positions)
-            print(linha, coluna)
             self.empty_positions = self.empty_positions.remove([linha,coluna])
         except ValueError:
             pass
