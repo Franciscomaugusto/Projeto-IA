@@ -310,7 +310,8 @@ class TakuzuState:
         for i in range(self.board.number):
             if i+1 <= self.board.number:
                 for j in range(self.board.number)[i+1:]:
-                    if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
+                    if self.is_full_line(i) and self.is_full_line(j):
+                        if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
                         return True
         return False
 
@@ -318,6 +319,7 @@ class TakuzuState:
         for i in range(self.board.number):
             if i + 1 <= self.board.number:
                 for j in range(self.board.number)[i+1:]:
+                  if self.is_full_column(i) and self.is_full_column(j):
                     if np.array_equal(self.board.get_columns()[i], self.board.get_columns()[j]):
                         return True
         return False
