@@ -225,11 +225,10 @@ class TakuzuState:
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = empty
-        print(empty)
-        self.line_0 = line_0
-        self.line_1 = line_1
-        self.column_0 = column_0
-        self.column_1 = column_1
+        self.line_0 = np.copy(line_0)
+        self.line_1 = np.copy(line_1)
+        self.column_0 = np.copy(column_0)
+        self.column_1 = np.copy(column_1)
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -323,16 +322,29 @@ class TakuzuState:
         if number % 2 == 0:
             for i in range(number):
                 if self.line_0[i] > number / 2:
-                    print('Corta ramo: mais 0 linha')
+                    print('Corta ramo: mais 0 linha: ',i)
+                    print(self.line_0[i],number/2)
+                    self.board.write()
+                    print('\n')
                     return False
                 elif self.line_1[i] > number / 2:
-                    print('Corta ramo: mais 1 linha')
+                    print('Corta ramo: mais 1 linha: ',i)
+                    print(self.line_1)
+                    print(self.line_1[i], number / 2)
+                    self.board.write()
+                    print('\n')
                     return False
                 if self.column_0[i] > number / 2:
-                    print('Corta ramo: mais 0 coluna')
+                    print('Corta ramo: mais 0 coluna ',i)
+                    print(self.column_0[i], number / 2)
+                    self.board.write()
+                    print('\n')
                     return False
                 if self.column_1[i] > number / 2:
-                    print('Corta ramo: mais 1 coluna')
+                    print('Corta ramo: mais 1 coluna: ',i)
+                    print(self.column_1[i], number / 2)
+                    self.board.write()
+                    print('\n')
                     return False
             return True
         if number % 2 != 0:
@@ -396,16 +408,13 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            if state.verify_restrictions():
-                for i in range(state.board.number):
-                    print(i)
-                    for j in range(state.board.number):
-                        if state.board.positions[i][j] == 2:
-                            if i == j == state.board.number-1:
-                                print('PREENCHER A ULTIMA\n')
-                            return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
-            else:
-                return []
+            for i in range(state.board.number):
+                for j in range(state.board.number):
+                    if state.board.positions[i][j] == 2:
+                        if i == j == state.board.number-1:
+                            print('PREENCHER A ULTIMA\n')
+                        return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
+            return []
         else:
             raise NotImplementedError
 
@@ -417,7 +426,7 @@ class Takuzu(Problem):
 
         new_board = Board(state.board.positions, state.board.number)
         empty = state.empty_positions.copy()
-        new_state = TakuzuState(new_board, empty,state.line_0.copy(),state.line_1.copy(),state.column_0.copy(),state.column_1.copy())
+        new_state = TakuzuState(new_board, empty,state.line_0,state.line_1,state.column_0,state.column_1)
         new_state.place_num_state(action[0],action[1],action[2])
 
 
@@ -425,7 +434,6 @@ class Takuzu(Problem):
         print('linhas 1',new_state.line_1)
         print('Colunas 0',new_state.column_0)
         print('Colunas 1',new_state.column_1)
-        new_state.board.write()
         print('\n')
         return new_state
 
@@ -436,9 +444,8 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         if(type(state) != type(None) ):
-            state.pre_processing()
-            state.board.write()
             print(state.state_id)
+            state.pre_processing()
             if state.equal_lines():
                 print('goal false: linhas')
                 return False
