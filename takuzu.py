@@ -224,7 +224,7 @@ class TakuzuState:
     def __init__(self, board: Board, empty: list, line_0: np.array, line_1: np.array, column_0: np.array, column_1: np.array):
         self.board = board
         self.id = TakuzuState.state_id
-        self.empty_positions = empty
+        self.empty_positions = empty.copy()
         self.line_0 = np.copy(line_0)
         self.line_1 = np.copy(line_1)
         self.column_0 = np.copy(column_0)
@@ -425,7 +425,6 @@ class Takuzu(Problem):
         self.actions(state)."""
 
         new_board = Board(state.board.positions, state.board.number)
-        empty = state.empty_positions.copy()
         new_state = TakuzuState(new_board, empty,state.line_0,state.line_1,state.column_0,state.column_1)
         new_state.place_num_state(action[0],action[1],action[2])
 
