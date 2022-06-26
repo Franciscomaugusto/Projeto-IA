@@ -67,6 +67,8 @@ class Board:
 
     def search_three_follow_vertical(self, row: int, col: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers vertically"""
+        if self.positions[row,col] == 2:
+            return False
         if (row == 0):
             if self.positions[row,col] == self.positions[row + 1, col] == self.positions[row + 2, col]:
                 return True
@@ -95,6 +97,8 @@ class Board:
 
     def search_three_follow_horizontal(self, row: int, col: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
+        if self.positions[row,col] == 2:
+            return False
         if col == 0:
             if self.positions[row,col] ==  self.positions[row , col+1] == self.positions[row, col+2] :
                 return True
@@ -166,6 +170,8 @@ class Board:
             list_of_columns = np.append(list_of_columns, [list_of_column], axis=0)
         list_of_columns = np.delete(list_of_columns, 0, 0)
         return list_of_columns
+
+
 
     def count_num_by_column(self,num:int,column:int):
         l = self.get_columns()[column]
@@ -316,6 +322,8 @@ class TakuzuState:
                 print('Eighth option', linha, coluna)
                 self.place_num_state(linha, coluna, 0)
 
+
+
     def count_num_restrict(self):
         number = self.board.number
         if number % 2 == 0:
@@ -368,10 +376,16 @@ class TakuzuState:
             print('goal True:')
             return True
 
+
+
     def verify_restrictions(self):
-        if self.count_num_restrict():
-            return True
-        return False
+        board = self.board
+        number = board.number
+        for i in range(number):
+            for j in range(number):
+                if not board.three_follow(i,j):
+                    return False
+        return True
 
 
     def pre_processing(self):
@@ -407,7 +421,7 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            if state.verify_restrictions():
+            if(state.verify_restrictions()):
                 for i in range(state.board.number):
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
