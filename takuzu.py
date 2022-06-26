@@ -125,13 +125,12 @@ class Board:
         self.positions[row, col] = numb
 
     def get_empty_positions(self):
-        ls = np.array([[0,0]],dtype='int8')
+        ls = [[]]
         for i in range(self.number):
             for j in range(self.number):
-                if self.positions[i,j] == 2:
-                    ls = np.append(ls,[[i, j]],axis=0)
-        ls = np.delete(ls, (0), axis=0)
-        return list(ls)
+                if self.positions[i, j] == 2:
+                    ls.append([i, j])
+        return ls[1:]
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -278,7 +277,7 @@ class TakuzuState:
     def place_num_state(self, linha: int, coluna: int, num: int):
         self.board.place_num(linha,coluna,num)
         try:
-            self.empty_positions = self.empty_positions.remove([linha,coluna])
+            del self.empty_positions[self.empty_positions.index([linha, coluna])]
         except ValueError:
             pass
         if num == 0:
@@ -408,13 +407,15 @@ class Takuzu(Problem):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            for i in range(state.board.number):
-                for j in range(state.board.number):
-                    if state.board.positions[i][j] == 2:
-                        if i == j == state.board.number-1:
-                            print('PREENCHER A ULTIMA\n')
-                        return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
-            return []
+            if state.verify_restrictions():
+                for i in range(state.board.number):
+                    for j in range(state.board.number):
+                        if state.board.positions[i][j] == 2:
+                            if i == j == state.board.number-1:
+                                print('PREENCHER A ULTIMA\n')
+                            return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
+            else:
+                return []
         else:
             raise NotImplementedError
 
@@ -425,7 +426,7 @@ class Takuzu(Problem):
         self.actions(state)."""
 
         new_board = Board(state.board.positions, state.board.number)
-        new_state = TakuzuState(new_board, empty,state.line_0,state.line_1,state.column_0,state.column_1)
+        new_state = TakuzuState(new_board, state.empty_positions,state.line_0,state.line_1,state.column_0,state.column_1)
         new_state.place_num_state(action[0],action[1],action[2])
 
 
@@ -444,6 +445,7 @@ class Takuzu(Problem):
         estão preenchidas com uma sequência de números adjacentes."""
         if(type(state) != type(None) ):
             print(state.state_id)
+            print(state.empty_positions)
             state.pre_processing()
             if state.equal_lines():
                 print('goal false: linhas')
