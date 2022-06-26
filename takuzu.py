@@ -65,74 +65,73 @@ class Board:
             lista = [self.positions[row, col - 1], self.positions[row, col + 1]]
         return lista
 
-    def search_three_follow_vertical(self, row: int, col: int, num: int):
+    def search_three_follow_vertical(self, row: int, col: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers vertically"""
         if (row == 0):
-            if self.positions[row + 1, col] == self.positions[row + 2, col] == num:
+            if self.positions[row,col] == self.positions[row + 1, col] == self.positions[row + 2, col]:
                 return True
         if row == self.number - 1:
-            if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
+            if self.positions[row,col] == self.positions[row - 1, col] == self.positions[row - 2, col]:
                 return True
         if (self.number == 3 and row == 1):
-            if self.positions[row - 1, col] == self.positions[row + 1, col] == num:
+            if self.positions[row,col] ==  self.positions[row - 1, col] == self.positions[row + 1, col]:
                 return True
         if(self.number == 3 and row == 2):
-            if self.positions[row - 1, col] == self.positions[row - 2, col] == num:
+            if self.positions[row,col] == self.positions[row - 1, col] == self.positions[row - 2, col]:
                 return True
         if self.number > 3 and row == 1:
-            if self.positions[row - 1, col] == \
-                    self.positions[row + 1, col]==num or self.positions[row + 1, col] == self.positions[row + 2, col] == num :
+            if self.positions[row,col] == self.positions[row - 1, col] == \
+                    self.positions[row + 1, col] or self.positions[row,col] == self.positions[row + 1, col] == self.positions[row + 2, col]:
                 return True
         if(self.number > 3 and row == self.number-2):
-           if self.positions[row - 1, col] == self.positions[row + 1, col]==num or self.positions[row - 1, col] == self.positions[row - 2, col] == num:
+           if self.positions[row - 1, col] == self.positions[row + 1, col]== self.positions[row,col] or self.positions[row,col] == self.positions[row - 1, col] == self.positions[row - 2, col]:
                return True
-
         if self.number > 4 and row in range(self.number)[2:self.number-2]:
-            if self.positions[row - 1, col] == self.positions[row + 1, col] == num or self.positions[row + 1, col] == self.positions[row + 2, col] == num or self.positions[row - 1, col] == self.positions[row - 2, col] == num :
+            if self.positions[row,col] == self.positions[row - 1, col] == self.positions[row + 1, col] or self.positions[row,col] == self.positions[row + 1, col] == self.positions[row + 2, col] or self.positions[row,col] == self.positions[row - 1, col] == self.positions[row - 2, col]:
                 return True
         return False
 
 
 
-    def search_three_follow_horizontal(self, row: int, col: int, num: int):
+    def search_three_follow_horizontal(self, row: int, col: int):
         """Returns true if the insertion of num leads to a sequence of three equal numbers horizontally"""
         if col == 0:
-            if self.positions[row , col+1] == self.positions[row, col+2] == num:
+            if self.positions[row,col] ==  self.positions[row , col+1] == self.positions[row, col+2] :
                 return True
         if col == self.number - 1:
-            if self.positions[row, col-1] == self.positions[row, col-2] == num:
+            if self.positions[row,col] == self.positions[row, col-1] == self.positions[row, col-2]:
                 return True
         if (self.number == 3 and col == 1):
-            if self.positions[row, col-1] == self.positions[row, col+1] == num:
+            if self.positions[row,col] == self.positions[row, col-1] == self.positions[row, col+1]:
                 return True
         if (self.number == 3 and col == 2):
-            if self.positions[row, col-1] == self.positions[row, col - 2] == num:
+            if self.positions[row,col] == self.positions[row, col-1] == self.positions[row, col - 2]:
                 return True
         if self.number > 3 and col == 1:
-            if self.positions[row, col-1] == \
-                    self.positions[row, col+1]==num or self.positions[row, col+1] == self.positions[row, col+2] == num :
+            if self.positions[row,col] == self.positions[row, col-1] == \
+                    self.positions[row, col+1] or self.positions[row,col] == self.positions[row, col+1] == self.positions[row, col+2]:
                 return True
         if (self.number > 3 and col == self.number - 2):
-            if self.positions[row , col-1] == \
-                    self.positions[row, col+1]==num or self.positions[row , col-1] == self.positions[row , col-2] == num :
+            if self.positions[row,col] == self.positions[row , col-1] == \
+                    self.positions[row, col+1] or self.positions[row,col] == self.positions[row , col-1] == self.positions[row , col-2]:
                 return True
         if self.number > 4 and col in range(self.number)[2:self.number-2]:
-            if self.positions[row, col-1] == self.positions[row, col+1]==num or self.positions[row, col+1] == self.positions[row, col+2] == num or self.positions[row, col-1] == \
-                    self.positions[row, col-2]==num :
+            if self.positions[row,col] == self.positions[row, col-1] == self.positions[row, col+1] or self.positions[row,col] == self.positions[row, col+1] == self.positions[row, col+2] or self.positions[row,col] == self.positions[row, col-1] == \
+                    self.positions[row, col-2]:
                 return True
         return False
 
     def place_num(self, row: int, col: int, numb: int):
-        if row != -1:
-            self.positions[row, col] = numb
+        self.positions[row, col] = numb
 
     def get_empty_positions(self):
-        ls = [[]]
+        ls = np.array([[0,0]],dtype='int8')
         for i in range(self.number):
             for j in range(self.number):
-                if self.positions[i][j] == 2:
-                    ls.append([i, j])
-        return ls[1:]
+                if self.positions[i,j] == 2:
+                    ls = np.append(ls,[[i, j]],axis=0)
+        ls = np.delete(ls, (0), axis=0)
+        return ls
 
     @staticmethod
     def parse_instance_from_stdin():
@@ -169,7 +168,7 @@ class Board:
         list_of_columns = np.delete(list_of_columns, 0, 0)
         return list_of_columns
 
-    def count_num_by_collumn(self,num:int,column:int):
+    def count_num_by_column(self,num:int,column:int):
         l = self.get_columns()[column]
         count = 0
         for i in range(self.number):
@@ -185,12 +184,34 @@ class Board:
                 count = count + 1
         return count
 
+    def count_line(self, num: int):
+        list1 = np.array([0],dtype = 'int8')
+        number = self.number
+        for i in range(number):
+            list1 = np.append(list1,[self.count_num_by_lines(num,i)])
+        return list1[1:]
+
+    def count_column(self, num: int):
+        list1 = np.array([0],dtype = 'int8')
+        number = self.number
+        for i in range(number):
+            list1 = np.append(list1,[self.count_num_by_column(num,i)])
+        return list1[1:]
+
+
+    def three_follow(self, linha: int, coluna: int):
+        if self.search_three_follow_vertical(linha, coluna):
+            return False
+        if self.search_three_follow_horizontal(linha,coluna):
+            return False
+        return True
+
+
     def write(self):
         linhas = self.get_lines()
         for i in range(self.number - 1):
-            print('\t'.join(map(str,linhas[i])))
-        print('\t'.join(map(str,linhas[self.number-1])))
-
+            print('\t'.join(map(str, linhas[i])))
+        print('\t'.join(map(str, linhas[self.number - 1])))
 
 
     # TODO: outros metodos da classe
@@ -201,10 +222,15 @@ class TakuzuState:
 
     # Alterado empty_positions como argumento da criação do takuzu state
 
-    def __init__(self, board: Board, empty: list):
+    def __init__(self, board: Board, empty: np.array, line_0: np.array, line_1: np.array, column_0: np.array, column_1: np.array):
         self.board = board
         self.id = TakuzuState.state_id
         self.empty_positions = empty
+        print(empty)
+        self.line_0 = line_0
+        self.line_1 = line_1
+        self.column_0 = column_0
+        self.column_1 = column_1
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -214,60 +240,6 @@ class TakuzuState:
         return self.board.search_three_follow_horizontal(row, col, num) and self.board.search_three_follow_vertical(row,
                                                                                                                     col,
                                                                                                                     num)
-
-    def find_obvious_positions(self):
-        lst_obv_pos = [[]]
-        empty = self.empty_positions
-        if(self.board.number%2 == 0):
-            for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
-                    for l in empty:
-                        if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif(self.board.count_num_by_lines(1,i)==self.board.number/2):
-                    for l in empty:
-                        if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
-                    for l in empty:
-                        if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 1])
-                if self.board.count_num_by_collumn(1, i) == self.board.number / 2:
-                    for l in empty:
-                        if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 0])
-        if(self.board.number%2 != 0):
-            for i in range(self.board.number):
-                if self.board.count_num_by_lines(0,i)==self.board.number/2:
-                    for l in empty:
-                        if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],1])
-                elif self.board.count_num_by_lines(1,i)==self.board.number/2 + 1:
-                    for l in empty:
-                        if l[0] == i:
-                            lst_obv_pos.append([l[0],l[1],0])
-                if self.board.count_num_by_collumn(0,i)==self.board.number/2:
-                    for l in empty:
-                        if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 1])
-                if self.board.count_num_by_collumn(1, i) == self.board.number / 2+1:
-                    for l in empty:
-                        if l[1] == i:
-                            lst_obv_pos.append([l[0], l[1], 0])
-        for i in empty:
-            if(isinstance(i,list)):
-                if self.board.search_three_follow_vertical(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
-                elif self.board.search_three_follow_horizontal(i[0], i[1], 0):
-                    lst_obv_pos.append([i[0], i[1], 1])
-                if self.board.search_three_follow_vertical(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
-                elif self.board.search_three_follow_horizontal(i[0], i[1], 1):
-                    lst_obv_pos.append([i[0], i[1], 0])
-        return lst_obv_pos[1:]
-
-
-
     def is_full_line(self, line: int):
         list_lines = self.board.get_lines()
         for i in range(self.board.number):
@@ -304,6 +276,90 @@ class TakuzuState:
                         return True
         return False
 
+    def place_num_state(self, linha: int, coluna: int, num: int):
+        self.board.place_num(linha,coluna,num)
+        try:
+            self.empty_positions = np.delete(self.empty_positions, np.where(self.empty_positions == [linha,coluna]), axis=0)
+        except ValueError:
+            pass
+        if num == 0:
+            self.line_0[linha] = self.line_0[linha] + 1
+            self.column_0[coluna] = self.column_0[coluna] + 1
+        if num == 1:
+            self.line_1[linha] = self.line_1[linha] + 1
+            self.column_1[coluna] = self.column_1[coluna] + 1
+
+    def num_restrict(self, linha: int, coluna: int):
+        number = self.board.number
+        if (number % 2 == 0):
+            if self.line_0[linha] == number / 2:
+                self.place_num_state(linha,coluna,1)
+            elif (self.line_1[linha] == self.board.number / 2):
+                self.place_num_state(linha, coluna, 0)
+            if self.column_0[coluna] == self.board.number / 2:
+                self.place_num_state(linha, coluna, 1)
+            if self.column_1[coluna] == self.board.number / 2:
+                self.place_num_state(linha, coluna, 0)
+        if (self.board.number % 2 != 0):
+            if self.line_0[linha] == state.board.number / 2 and self.line_1[linha] == self.board.number / 2 + 1:
+                self.place_num_state(linha, coluna, 1)
+            if self.line_1[linha] == state.board.number / 2 and self.line_0[linha] == self.board.number / 2 + 1:
+                self.place_num_state(linha, coluna, 0)
+            if self.column_0[coluna] == state.board.number / 2 and self.column_1[coluna] == self.board.number / 2 + 1:
+                self.place_num_state(linha, coluna, 1)
+            if self.column_1[coluna] == state.board.number / 2 and self.column_0[coluna] == self.board.number / 2 + 1:
+                self.place_num_state(linha, coluna, 0)
+
+    def count_num_restrict(self):
+        if (self.board.number % 2 == 0):
+            for i in range(self.board.number):
+                if self.line_0[i] > self.board.number / 2:
+                    return False
+                elif (self.line_1[i] > self.board.number / 2):
+                    return False
+                if self.column_0[i] > self.board.number / 2:
+                    return False
+                if self.column_1[i] > self.board.number / 2:
+                    return False
+            return True
+        if (self.board.number % 2 != 0):
+            for i in range(self.board.number):
+                if self.line_0[i] >= self.board.number / 2 + 2:
+                    self.board.write()
+                    print('goal false: mais 0')
+                    return False
+                if self.line_1[i] >= self.board.number / 2 + 2 :
+                    self.board.write()
+                    print('goal false: mais 0')
+                    return False
+                if self.column_0[i] >= self.board.number / 2 + 2 :
+                    self.board.write()
+                    print('goal false: mais 1')
+                    return False
+                if self.column_1[i] >= self.board.number / 2 + 2:
+                    self.board.write()
+                    print('goal false: mais 1')
+                    return False
+            self.board.write()
+            print('goal True:')
+            return True
+
+    def verify_restrictions(self):
+        if self.count_num_restrict():
+            return True
+        return False
+
+
+    def pre_processing(self):
+        empty = self.empty_positions
+        for pos in empty:
+            print(pos)
+            self.num_restrict(pos[0],pos[1])
+
+
+
+
+
     # TODO: outros metodos da classe
 
 
@@ -311,25 +367,33 @@ class Takuzu(Problem):
 
     def __init__(self, board: Board):
         """O construtor especifica o estado inicial."""
+        board.write()
         empty = board.get_empty_positions()
-        self.initial = TakuzuState(board, empty)
+        line1 = board.count_line(1)
+        print(line1)
+        line0 = board.count_line(0)
+        print(line0)
+        column0 = board.count_column(0)
+        print(column0)
+        column1 = board.count_column(1)
+        print(column1)
+        self.initial = TakuzuState(board, empty, line0, line1, column0, column1)
 
 
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            array = state.find_obvious_positions()
-            if len(array)== 0:
+            if state.verify_restrictions():
                 for i in range(state.board.number):
+                    print(i)
                     for j in range(state.board.number):
                         if state.board.positions[i][j] == 2:
-                            #verificar o numero de zeros e de uns
-                            #perguntar como o oliveira está a passar state, board, tudo para o result
-                            return np.array([[i, j, 1], [i, j, 0]], dtype='int8')
-                return []
+                            if i == j == state.board.number-1:
+                                print('PREENCHER A ULTIMA\n')
+                            return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
             else:
-                return array
+                return []
         else:
             raise NotImplementedError
 
@@ -340,13 +404,17 @@ class Takuzu(Problem):
         self.actions(state)."""
 
         new_board = Board(state.board.positions, state.board.number)
-        new_board.place_num(action[0], action[1], action[2])
         empty = state.empty_positions.copy()
-        try:
-            del empty[empty.index([action[0], action[1]])]
-        except ValueError:
-            pass
-        new_state = TakuzuState(new_board, empty)
+        new_state = TakuzuState(new_board, empty,state.line_0.copy(),state.line_1.copy(),state.column_0.copy(),state.column_1.copy())
+        new_state.place_num_state(action[0],action[1],action[2])
+
+
+        print('linhas 0',new_state.line_0)
+        print('linhas 1',new_state.line_1)
+        print('Colunas 0',new_state.column_0)
+        print('Colunas 1',new_state.column_1)
+        new_state.board.write()
+        print('\n')
         return new_state
 
 
@@ -356,39 +424,27 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         if(type(state) != type(None) ):
+            state.pre_processing()
+            state.board.write()
+            print(state.state_id)
             if state.equal_lines():
+                print('goal false: linhas')
                 return False
             if state.equal_columns():
+                print('goal false: colunas')
                 return False
             number = state.board.number
             board = state.board
-            if state.board.number%2 == 0:
-                for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0,i) > state.board.number/2:
-                        return False
-                    if state.board.count_num_by_lines(1,i) > state.board.number/2:
-                        return False
-                    if state.board.count_num_by_collumn(0,i) > state.board.number/2:
-                        return False
-                    if state.board.count_num_by_collumn(1,i) > state.board.number/2:
-                        return False
-                    return True
-            else:
-                for i in range(state.board.number):
-                    if state.board.count_num_by_lines(0,i) > state.board.number/2+1:
-                        return False
-                    if state.board.count_num_by_lines(1,i) > state.board.number/2+1:
-                        return False
-                    if state.board.count_num_by_collumn(0,i) > state.board.number/2+1:
-                        return False
-                    if state.board.count_num_by_collumn(1,i) > state.board.number/2+1:
-                        return False
-                    return True
 
+            for i in range(number):
+                for j in range(number):
+                    if not board.three_follow(i,j):
+                        print('goal false: seguidas 0 e 1')
+                        return False
 
-
-
-
+        if state.count_num_restrict():
+            return True
+        return False
 
 
     def h(self, node: Node):
@@ -412,6 +468,7 @@ if __name__ == "__main__":
     if goal_node is None:
         print("Is goal?\nFalse\n")
     else:
+        print('True\n')
         goal_node.state.board.write()
     # Ler o ficheiro de input de sys.argv[1],
     # Usar uma técnica de procura para resolver a instância,
