@@ -366,7 +366,6 @@ class TakuzuState:
     def pre_processing(self):
         empty = self.empty_positions
         for pos in empty:
-            print(pos)
             self.num_restrict(pos[0], pos[1])
 
 
