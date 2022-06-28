@@ -99,7 +99,6 @@ class Board:
                             tripleto = np.append(tripleto, index_inicial + 1)
                         if tripleto[2] == 2:
                             tripleto = np.append(tripleto, index_inicial + 2)
-                        print(tripleto)
                         lista_tripletos_vazios = np.append(lista_tripletos_vazios, [tripleto] ,axis=0)
                 index_inicial +=1
             lista_tripletos_vazios = np.delete(lista_tripletos_vazios, 0, 0)
@@ -291,11 +290,13 @@ class TakuzuState:
         return True
 
     def place_num_state(self, linha: int, coluna: int, num: int):
-        self.board.place_num(linha, coluna, num)
         try:
             del self.empty_positions[self.empty_positions.index([linha, coluna])]
+            self.board.place_num(linha, coluna, num)
+            if not self.verify_restrictions(linha, coluna):
+                self.restriction_safe = True
         except ValueError:
-            pass
+            self.restriction_safe == False
 
     """
     def get_full_columns(self):
@@ -337,10 +338,8 @@ class TakuzuState:
         limit = number // 2 + number % 2
         for i in range(number):
             if np.count_nonzero(linhas[i] == 1) > limit or np.count_nonzero(linhas[i] == 0) > limit:
-                print('Linha ', i, 'tem mais')
                 return False
             if np.count_nonzero(colunas[i] == 1) > limit or np.count_nonzero(colunas[i] == 0) > limit:
-                print('Coluna ', i, 'tem mais')
                 return False
         return True
 
@@ -375,27 +374,20 @@ class TakuzuState:
                     self.place_num_state(pos[0], pos[1], 0)
 
     def verify_restrictions(self, linha: int, coluna: int):
-        board = self.board
-        if self.equal_columns():
-            print('equal columns')
-            return False
-        if self.equal_lines():
-            print('equal lines')
+        print(linha,coluna)
+        self.board.write()
+        if not self.board.three_follow(linha,coluna):
+            print('Deu Falso')
             return False
         return True
 
     def pre_processing(self):
-        print('três seguida')
         number = self.board.number
         self.put_obv_three_all()
         for i in range(number):
-            print('preencher linha ',i)
             self.fill_rest_line(i)
         for i in range(number):
-            print('preencher coluna ',i)
             self.fill_rest_column(i)
-        self.board.write()
-
 
 class Takuzu(Problem):
 
@@ -404,23 +396,19 @@ class Takuzu(Problem):
         empty = board.get_empty_positions()
         self.initial = TakuzuState(board, empty)
 
-
     def actions(self, state: TakuzuState):
         """Retorna uma lista de ações que podem ser executadas a
         partir do estado passado como argumento. """
         if (type(state) != type(None)):
-            if state.restriction_safe:
-                for i in range(state.board.number):
-                    for j in range(state.board.number):
-                        if state.board.positions[i][j] == 2:
-                            if i == j == state.board.number-1:
-                                print('PREENCHER A ULTIMA\n')
-                            return np.array([[i, j, 0], [i, j, 1]], dtype='int8')
+            empty = state.empty_positions
+            if state.restriction_safe and len(empty) != 0:
+                empty = state.empty_positions
+                return [[empty[0][0], empty[0][1], 0], [empty[0][0], empty[0][1], 1]]
             else:
-                print('action corta ramo')
                 return []
         else:
             raise NotImplementedError
+
 
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
@@ -432,7 +420,6 @@ class Takuzu(Problem):
         new_state = TakuzuState(new_board, state.empty_positions)
         new_state.place_num_state(action[0],action[1],action[2])
 
-        print('\n')
         return new_state
 
 
@@ -442,25 +429,21 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         if type(state) != type(None) :
-            print(state.state_id)
-            print(state.empty_positions)
             state.pre_processing()
             if not state.full_board():
                 return False
+            if not state.board.three_follow_all_board():
+                return False
             if state.equal_lines():
-                print('goal false: linhas')
                 return False
             if state.equal_columns():
-                print('goal false: colunas')
                 return False
             number = state.board.number
             board = state.board
             if not board.three_follow_all_board():
                 return False
-            for i in range(number):
-                for j in range(number):
-                    if not state.num_restrict():
-                        return False
+            if not state.num_restrict():
+                return False
             return True
         return False
 
