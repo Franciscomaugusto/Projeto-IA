@@ -13,6 +13,9 @@ import numpy as np
 
 from search import (
     Problem,
+    InstrumentedProblem,
+    compare_searchers,
+    compare_graph_searchers,
     Node,
     astar_search,
     breadth_first_tree_search,
@@ -259,6 +262,7 @@ class TakuzuState:
         self.id = TakuzuState.state_id
         self.empty_positions = empty.copy()
         self.restriction_safe = True
+        self.placed = True
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -304,8 +308,7 @@ class TakuzuState:
         try:
             del self.empty_positions[self.empty_positions.index([linha, coluna])]
             self.board.place_num(linha, coluna, num)
-            if not self.verify_restrictions(linha,coluna):
-                self.restriction_safe = False
+            self.placed = True
         except ValueError:
             pass
 
@@ -340,12 +343,16 @@ class TakuzuState:
                     self.place_num_state(pos[3], i, 1)
                 if np.count_nonzero(pos == 1) == 2 and pos[3] != 1 or np.count_nonzero(pos == 1) == 3:
                     self.place_num_state(pos[3], i, 0)
-    """
+
     def put_column_full(self,coluna: int):
         number = self.board.number
         colunas = self.board.get_columns()
         coluna_est = colunas[coluna]
         index = []
+        print("\n")
+        self.board.write()
+        print("\n")
+
         if np.count_nonzero(coluna_est == 2)==2:
             for i in range(number):
                 if coluna_est[i] == 2:
@@ -353,6 +360,7 @@ class TakuzuState:
             for i in range(number):
                 if self.is_full_column(i):
                     if np.array_equal(colunas[i][:index[0]] ,coluna_est[:index[0]]) and np.array_equal(colunas[i][index[0]+1:index[1]] , coluna_est[index[0]+1:index[1]]) and np.array_equal(colunas[i][index[1]+1:], coluna_est[index[1]+1:]):
+                        self.placed = True
                         self.place_num_state(i,coluna,colunas[i][index[0]])
                         self.place_num_state(i,coluna,colunas[i][index[1]])
 
@@ -361,16 +369,18 @@ class TakuzuState:
         linhas = self.board.get_lines()
         linha_est = linhas[linha]
         index = []
-        if np.count_nonzero(linha_est == 2)==2:
+        self.board.write()
+        if np.count_nonzero(linha_est == 2) == 2:
             for i in range(number):
                 if linha_est[i] == 2:
                     index.append(i)
             for i in range(number):
                 if self.is_full_column(i):
                     if np.array_equal(linhas[i][:index[0]] ,linha_est[:index[0]]) and np.array_equal(linhas[i][index[0]+1:index[1]] , linha_est[index[0]+1:index[1]]) and np.array_equal(linhas[i][index[1]+1:], linha_est[index[1]+1:]):
+                        self.placed = True
                         self.place_num_state(linha,i,linhas[i][index[0]])
                         self.place_num_state(linha,i,linhas[i][index[1]])
-        """
+
 
 
     def num_restrict_simple(self, linha: int, coluna: int):
@@ -429,23 +439,28 @@ class TakuzuState:
                     self.place_num_state(pos[0], pos[1], 0)
 
 
-    def verify_restrictions(self, linha: int, coluna: int):
-        if not self.board.consecutive_restraint(linha,coluna):
+    def verify_restrictions(self):
+        if not self.board.three_follow_all_board():
             return False
-        if not self.num_restrict_simple(linha,coluna):
+        if not self.num_restrict():
             return False
         return True
 
     def pre_processing(self):
         number = self.board.number
-        self.put_obv_three_all()
-        if self.restriction_safe:
-            for i in range(number):
-                self.fill_rest_line(i)
-        if self.restriction_safe:
-            for i in range(number):
-                self.fill_rest_column(i)
-
+        while self.placed:
+            print("Loop")
+            self.placed = False
+            self.put_obv_three_all()
+            if self.restriction_safe:
+                for i in range(number):
+                    self.fill_rest_line(i)
+                for i in range(number):
+                    self.fill_rest_column(i)
+                for i in range(number):
+                    self.put_column_full(i)
+                for i in range(number):
+                    self.put_line_full(i)
 
 
 class Takuzu(Problem):
@@ -468,17 +483,14 @@ class Takuzu(Problem):
         else:
             raise NotImplementedError
 
-
     def result(self, state: TakuzuState, action):
         """Retorna o estado resultante de executar a 'action' sobre
         'state' passado como argumento. A ação a executar deve ser uma
         das presentes na lista obtida pela execução de
         self.actions(state)."""
-
         new_board = Board(state.board.positions, state.board.number)
         new_state = TakuzuState(new_board, state.empty_positions)
         new_state.place_num_state(action[0],action[1],action[2])
-
         return new_state
 
     def goal_test(self, state: TakuzuState):
@@ -486,26 +498,29 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         if type(state) != type(None):
+            state.placed = True
             state.pre_processing()
-            if not state.restriction_safe:
+            if len(state.empty_positions) != 0:
                 return False
-            if not state.full_board():
+            if not state.verify_restrictions():
                 return False
             if state.equal_lines():
                 return False
             if state.equal_columns():
                 return False
-
-
             return True
         return False
 
-
     def h(self, node: Node):
-        """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
-
+        """Função heuristica utilizada para a procura A."""
+        node.state.pre_processing()
+        num2 = len(node.state.empty_positions)
+        total = board.number *board.number
+        if node.state.restriction_safe:
+            value = total - num2
+        else:
+            value = 0
+        return value
     # TODO: outros metodos da classe
 
 
@@ -517,7 +532,10 @@ if __name__ == "__main__":
     # Criar uma instância de Takuzu:
     problem = Takuzu(board)
     goal_node = depth_first_tree_search(problem)
+    #compare_searchers(problem,header=['Nome', 'Results'])
     goal_node.state.board.write()
+
+
     # Obter o nó solução usando a procura em profundidade:
 
     pass
