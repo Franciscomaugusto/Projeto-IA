@@ -374,10 +374,7 @@ class TakuzuState:
                     self.place_num_state(pos[0], pos[1], 0)
 
     def verify_restrictions(self, linha: int, coluna: int):
-        print(linha,coluna)
-        self.board.write()
         if not self.board.three_follow(linha,coluna):
-            print('Deu Falso')
             return False
         return True
 
@@ -422,17 +419,19 @@ class Takuzu(Problem):
 
         return new_state
 
-
-
     def goal_test(self, state: TakuzuState):
         """Retorna True se e só se o estado passado como argumento é
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
-        if type(state) != type(None) :
+        if type(state) != type(None):
             state.pre_processing()
+            if not state.restriction_safe:
+                return False
             if not state.full_board():
                 return False
             if not state.board.three_follow_all_board():
+                return False
+            if not state.num_restrict():
                 return False
             if state.equal_lines():
                 return False
@@ -440,10 +439,7 @@ class Takuzu(Problem):
                 return False
             number = state.board.number
             board = state.board
-            if not board.three_follow_all_board():
-                return False
-            if not state.num_restrict():
-                return False
+
             return True
         return False
 
