@@ -229,6 +229,19 @@ class Board:
                     return False
             return True
 
+    def consecutive_restraint(self, linha: int, coluna: int):
+        number = self.number
+        if number >= 3:
+            lista_linhas = self.sequencia_de_tres(self.get_lines()[linha])
+            lista_col = self.sequencia_de_tres(self.get_columns()[coluna])
+            for tripleto in lista_linhas:
+                if tripleto[0] == tripleto[1] == tripleto[2] != 2:
+                    return False
+            for tripleto in lista_col:
+                if tripleto[0] == tripleto[1] == tripleto[2] != 2:
+                    return False
+        return True
+
     def write(self):
         linhas = self.get_lines()
         for i in range(self.number - 1):
@@ -246,6 +259,7 @@ class TakuzuState:
         self.id = TakuzuState.state_id
         self.empty_positions = empty.copy()
         self.restriction_safe = True
+        self.placed = True
         TakuzuState.state_id += 1
 
     def __lt__(self, other):
@@ -269,16 +283,14 @@ class TakuzuState:
         for i in range(self.board.number):
             if i+1 <= self.board.number:
                 for j in range(self.board.number)[i+1:]:
-                    if self.is_full_line(i) and self.is_full_line(j):
-                        if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
-                            return True
+                    if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
+                        return True
         return False
 
     def equal_columns(self):
         for i in range(self.board.number):
             if i + 1 <= self.board.number:
                 for j in range(self.board.number)[i+1:]:
-                  if self.is_full_column(i) and self.is_full_column(j):
                     if np.array_equal(self.board.get_columns()[i], self.board.get_columns()[j]):
                         return True
         return False
@@ -293,10 +305,11 @@ class TakuzuState:
         try:
             del self.empty_positions[self.empty_positions.index([linha, coluna])]
             self.board.place_num(linha, coluna, num)
-            if not self.verify_restrictions(linha, coluna):
-                self.restriction_safe = True
+            self.placed = True
+            if not self.verify_restrictions(linha,coluna):
+                self.restriction_safe = False
         except ValueError:
-            self.restriction_safe == False
+            pass
 
     """
     def get_full_columns(self):
@@ -329,6 +342,50 @@ class TakuzuState:
                     self.place_num_state(pos[3], i, 1)
                 if np.count_nonzero(pos == 1) == 2 and pos[3] != 1 or np.count_nonzero(pos == 1) == 3:
                     self.place_num_state(pos[3], i, 0)
+    """
+    def put_column_full(self,coluna: int):
+        number = self.board.number
+        colunas = self.board.get_columns()
+        coluna_est = colunas[coluna]
+        index = []
+        if np.count_nonzero(coluna_est == 2)==2:
+            for i in range(number):
+                if coluna_est[i] == 2:
+                    index.append(i)
+            for i in range(number):
+                if self.is_full_column(i):
+                    if np.array_equal(colunas[i][:index[0]] ,coluna_est[:index[0]]) and np.array_equal(colunas[i][index[0]+1:index[1]] , coluna_est[index[0]+1:index[1]]) and np.array_equal(colunas[i][index[1]+1:], coluna_est[index[1]+1:]):
+                        self.place_num_state(i,coluna,colunas[i][index[0]])
+                        self.place_num_state(i,coluna,colunas[i][index[1]])
+
+    def put_line_full(self,linha: int):
+        number = self.board.number
+        linhas = self.board.get_lines()
+        linha_est = linhas[linha]
+        index = []
+        if np.count_nonzero(linha_est == 2)==2:
+            for i in range(number):
+                if linha_est[i] == 2:
+                    index.append(i)
+            for i in range(number):
+                if self.is_full_column(i):
+                    if np.array_equal(linhas[i][:index[0]] ,linha_est[:index[0]]) and np.array_equal(linhas[i][index[0]+1:index[1]] , linha_est[index[0]+1:index[1]]) and np.array_equal(linhas[i][index[1]+1:], linha_est[index[1]+1:]):
+                        self.place_num_state(linha,i,linhas[i][index[0]])
+                        self.place_num_state(linha,i,linhas[i][index[1]])
+        """
+
+
+    def num_restrict_simple(self, linha: int, coluna: int):
+        board = self.board
+        number = board.number
+        linhas = board.get_lines()[linha]
+        colunas = board.get_columns()[coluna]
+        limit = number // 2 + number % 2
+        if np.count_nonzero(linhas == 1) > limit or np.count_nonzero(linhas == 0) > limit:
+            return False
+        if np.count_nonzero(colunas == 1) > limit or np.count_nonzero(colunas == 0) > limit:
+            return False
+        return True
 
     def num_restrict(self):
         board = self.board
@@ -373,18 +430,27 @@ class TakuzuState:
                 if pos[1] == coluna:
                     self.place_num_state(pos[0], pos[1], 0)
 
+
     def verify_restrictions(self, linha: int, coluna: int):
-        if not self.board.three_follow(linha,coluna):
+        if not self.board.consecutive_restraint(linha,coluna):
+            return False
+        if not self.num_restrict_simple(linha,coluna):
             return False
         return True
 
     def pre_processing(self):
         number = self.board.number
-        self.put_obv_three_all()
-        for i in range(number):
-            self.fill_rest_line(i)
-        for i in range(number):
-            self.fill_rest_column(i)
+        while self.placed:
+            self.placed = False
+            self.put_obv_three_all()
+            if self.restriction_safe:
+                for i in range(number):
+                    self.fill_rest_line(i)
+            if self.restriction_safe:
+                for i in range(number):
+                    self.fill_rest_column(i)
+
+
 
 class Takuzu(Problem):
 
@@ -424,31 +490,31 @@ class Takuzu(Problem):
         um estado objetivo. Deve verificar se todas as posições do tabuleiro
         estão preenchidas com uma sequência de números adjacentes."""
         if type(state) != type(None):
+            state.placed =True
             state.pre_processing()
             if not state.restriction_safe:
                 return False
-            if not state.full_board():
-                return False
-            if not state.board.three_follow_all_board():
-                return False
-            if not state.num_restrict():
+            if len(state.empty_positions) == 0:
                 return False
             if state.equal_lines():
                 return False
             if state.equal_columns():
                 return False
-            number = state.board.number
-            board = state.board
+
 
             return True
         return False
 
-
     def h(self, node: Node):
-        """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
-
+        """Função heuristica utilizada para a procura A."""
+        node.state.pre_processing()
+        num2 = len(node.state.empty_positions)
+        total = board.number *board.number
+        if node.state.restriction_safe:
+            value = total - num2
+        else:
+            value = 0
+        return value
     # TODO: outros metodos da classe
 
 
