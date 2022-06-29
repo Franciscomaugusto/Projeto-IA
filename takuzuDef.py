@@ -273,7 +273,7 @@ class TakuzuState:
 
     def equal_lines(self):
         for i in range(self.board.number):
-            if i+1 <= self.board.number:
+            if i+1 < self.board.number:
                 for j in range(self.board.number)[i+1:]:
                     if np.array_equal(self.board.get_lines()[i], self.board.get_lines()[j]):
                         return True
@@ -530,7 +530,7 @@ class Takuzu(Problem):
                 return False
             if not state.verify_restrictions():
                 return False
-            if len(state.empty_positions) == 0 and state.equal_lines() and state.equal_columns():
+            if len(state.empty_positions) == 0 and state.equal_lines() or len(state.empty_positions) == 0 and state.equal_lines():
                 return False
             return True
         return False
